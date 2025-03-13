@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Avistamientos</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #3E5C50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #2A4033;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            font-weight: 600;
+            color: #D3E4CD;
+        }
+        #map {
+            height: 400px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .avistamiento {
+            display: flex;
+            align-items: center;
+            background: #4A6653;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .avistamiento img {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .avistamiento-info {
+            flex: 1;
+        }
+        .add-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            background: #6A9C78;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .add-link:hover {
+            background: #89B789;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 Lista de Avistamientos 🌿</h1>
+        <div id="map"></div>
+        <div>
+            {% for avistamiento in avistamientos %}
+            <div class="avistamiento">
+                {% for imagen in avistamiento.imagenes.all %}
+                    <img src="{{ imagen.imagen.url }}" alt="Foto de {{ avistamiento.nombre }}">
+                {% endfor %}
+                <div class="avistamiento-info">
+                    <strong>{{ avistamiento.nombre }}</strong>
+                    <p>{{ avistamiento.descripcion }}</p>
+                    <small>📍 Ubicación: ({{ avistamiento.latitud }}, {{ avistamiento.longitud }})</small>
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay avistamientos registrados aún.</p>
+        {% endfor %}        
+        </div>
+        <a href="{% url 'agregar_avistamiento' %}" class="add-link">➕ Agregar un nuevo avistamiento</a>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var map = L.map('map').setView([4.5709, -74.2973], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            var avistamientos = {{ avistamientos_json|safe }};
+            if (Array.isArray(avistamientos)) {
+                avistamientos.forEach(function(avist) {
+                    if (avist.latitud !== null && avist.longitud !== null) {
+                        L.marker([avist.latitud, avist.longitud]).addTo(map)
+                            .bindPopup(`<strong>${avist.nombre}</strong><br>${avist.descripcion}<br><img src="${avist.foto}" alt="Foto de ${avist.nombre}" width="100" style="border-radius: 5px;">`);
+                    }
+                });
+            } else {
+                console.error("Los datos de avistamientos no son un array válido", avistamientos);
+            }
+        });
+    </script>
+</body>
+</html>

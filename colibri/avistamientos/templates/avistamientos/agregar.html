@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Avistamiento</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2F4F2F;
+            color: #F5F5DC;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #3E5C3E;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input, textarea, button, #map {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            background-color: #F5F5DC;
+            color: #2F4F2F;
+        }
+        textarea {
+            height: 100px;
+            resize: none;
+        }
+        button {
+            background-color: #F5F5DC;
+            color: #2F4F2F;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #C5C5A5;
+        }
+        #map {
+            height: 300px;
+            border-radius: 8px;
+        }
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .preview-container img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #F5F5DC;
+        }
+        a {
+            display: block;
+            margin-top: 20px;
+            color: #F5F5DC;
+            text-decoration: none;
+            text-align: center;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agregar un nuevo Avistamiento</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="id_nombre">Nombre:</label>
+            <input type="text" id="id_nombre" name="nombre">
+            
+            <label for="id_descripcion">Descripción:</label>
+            <textarea id="id_descripcion" name="descripcion"></textarea>
+            
+            <label for="id_fotos">Fotos:</label>
+            <input type="file" id="id_fotos" name="imagenes" multiple>
+            <div class="preview-container" id="preview-container"></div>
+            
+            <label for="id_latitud">Latitud:</label>
+            <input type="text" id="id_latitud" name="latitud">
+            
+            <label for="id_longitud">Longitud:</label>
+            <input type="text" id="id_longitud" name="longitud">
+            
+            <label for="map">Selecciona la ubicación:</label>
+            <div id="map"></div>
+            
+            <button type="submit">Guardar</button>
+        </form>
+        <a href="{% url 'listar_avistamientos' %}">Volver a la lista</a>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([4.5709, -74.2973], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        var marker;
+        function onMapClick(e) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById("id_latitud").value = e.latlng.lat;
+            document.getElementById("id_longitud").value = e.latlng.lng;
+        }
+        map.on('click', onMapClick);
+        
+        document.getElementById('id_fotos').addEventListener('change', function(event) {
+            var previewContainer = document.getElementById('preview-container');
+            previewContainer.innerHTML = '';
+            Array.from(event.target.files).forEach(file => {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = document.createElement('img');
+                    img.src = e.target.result;
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+</body>
+</html>
