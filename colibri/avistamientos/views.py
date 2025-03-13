@@ -47,4 +47,5 @@ def agregar_avistamiento(request):
 
     return render(request, 'avistamientos/agregar.html', {'form': form, 'imagenes_form': imagenes_form})
 
-
+def inicio(request):
+    return render(request, 'layouts/home.html')

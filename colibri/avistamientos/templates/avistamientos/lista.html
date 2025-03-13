@@ -97,18 +97,25 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
+    
             var avistamientos = {{ avistamientos_json|safe }};
+    
             if (Array.isArray(avistamientos)) {
                 avistamientos.forEach(function(avist) {
                     if (avist.latitud !== null && avist.longitud !== null) {
+                        var imagenUrl = avist.imagen_url ? avist.imagen_url : '/static/img/default.jpg';
                         L.marker([avist.latitud, avist.longitud]).addTo(map)
-                            .bindPopup(`<strong>${avist.nombre}</strong><br>${avist.descripcion}<br><img src="${avist.foto}" alt="Foto de ${avist.nombre}" width="100" style="border-radius: 5px;">`);
+                            .bindPopup(`
+                                <strong>${avist.nombre}</strong><br>
+                                ${avist.descripcion}<br>
+                                <img src="${imagenUrl}" alt="Foto de ${avist.nombre}" width="100" style="border-radius: 5px;">
+                            `);
                     }
                 });
             } else {
                 console.error("Los datos de avistamientos no son un array válido", avistamientos);
             }
         });
-    </script>
+    </script>    
 </body>
 </html>
