@@ -4,7 +4,8 @@ from .models import ReporteMaltrato, Evidencia
 class ReporteMaltratoForm(forms.ModelForm):
     class Meta:
         model = ReporteMaltrato
-        fields = ['descripcion', 'latitud', 'longitud']
+        fields = ['descripcion', 'imagen', 'video', 'audio']
+
 
     def clean(self):
         cleaned_data = super().clean()
