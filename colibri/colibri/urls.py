@@ -23,8 +23,8 @@ urlpatterns = [
     path('', inicio, name="inicio"),
     path('admin/', admin.site.urls),
     path('avistamientos/', include('avistamientos.urls')),
+    path('maltrato_animal/', include('maltrato_animal.urls')),
     path('educacion_ambiental/', include('educacion_ambiental.urls')),
-    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

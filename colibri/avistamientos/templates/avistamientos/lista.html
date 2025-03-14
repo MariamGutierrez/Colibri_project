@@ -10,7 +10,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #3E5C50;
-            color: rgb(85, 141, 93);
+            color: rgb(255, 255, 255);
             margin: 0;
             padding: 20px;
         }
@@ -66,18 +66,61 @@
         .add-link:hover {
             background: #89B789;
         }
+        .filters {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #4A6653;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .filters form {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filters select, .filters button {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🌿 Lista de Avistamientos 🌿</h1>
         <div id="map"></div>
+        <div class="filters">
+            <form method="GET" action="{% url 'listar_avistamientos' %}">
+                <label for="tipo_especie">Tipo de Especie:</label>
+                <select id="tipo_especie" name="tipo_especie">
+                    <option value="">Todos</option>
+                    <option value="fauna" {% if tipo_especie == "fauna" %}selected{% endif %}>Fauna</option>
+                    <option value="flora" {% if tipo_especie == "flora" %}selected{% endif %}>Flora</option>
+                </select>
+        
+                <label for="estado_conservacion">Estado de Conservación:</label>
+                <select id="estado_conservacion" name="estado_conservacion">
+                    <option value="">Todos</option>
+                    <option value="en_peligro" {% if estado_conservacion == "en_peligro" %}selected{% endif %}>En Peligro</option>
+                    <option value="invasora" {% if estado_conservacion == "invasora" %}selected{% endif %}>Invasora</option>
+                    <option value="comun" {% if estado_conservacion == "comun" %}selected{% endif %}>Común</option>
+                </select>
+        
+                <button type="submit">Filtrar</button>
+            </form>
+        </div>        
         <div>
             {% for avistamiento in avistamientos %}
             <div class="avistamiento">
-                {% for imagen in avistamiento.imagenes.all %}
+                {% with avistamiento.imagenes.first as imagen %}
+                {% if imagen %}
                     <img src="{{ imagen.imagen.url }}" alt="Foto de {{ avistamiento.nombre }}">
-                {% endfor %}
+                {% endif %}
+            {% endwith %}            
                 <div class="avistamiento-info">
                     <strong>{{ avistamiento.nombre }}</strong>
                     <p>{{ avistamiento.descripcion }}</p>
@@ -103,11 +146,14 @@
             if (Array.isArray(avistamientos)) {
                 avistamientos.forEach(function(avist) {
                     if (avist.latitud !== null && avist.longitud !== null) {
-                        var imagenUrl = avist.imagen_url ? avist.imagen_url : '/static/img/default.jpg';
+                        var imagenUrl = avist.imagen_url && avist.imagen_url !== "null" ? avist.imagen_url : '/static/img/default.jpg';
                         L.marker([avist.latitud, avist.longitud]).addTo(map)
                             .bindPopup(`
                                 <strong>${avist.nombre}</strong><br>
                                 ${avist.descripcion}<br>
+                                📅 Fecha: ${avist.fecha_creacion}<br>
+                                🏷️ Tipo: ${avist.tipo_especie}<br>
+                                ⚠️ Estado de Conservación: ${avist.estado_conservacion}<br>
                                 <img src="${imagenUrl}" alt="Foto de ${avist.nombre}" width="100" style="border-radius: 5px;">
                             `);
                     }
