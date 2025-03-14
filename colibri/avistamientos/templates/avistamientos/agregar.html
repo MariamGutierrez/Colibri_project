@@ -91,6 +91,15 @@
 <body>
     <div class="container">
         <h1>Agregar un nuevo Avistamiento</h1>
+                {% if messages %}
+            <div class="alert">
+                {% for message in messages %}
+                    <p style="background-color: #f0ad4e; padding: 10px; border-radius: 5px; color: white;">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <label for="id_nombre">Nombre:</label>
@@ -98,10 +107,76 @@
             
             <label for="id_descripcion">Descripción:</label>
             <textarea id="id_descripcion" name="descripcion"></textarea>
+
+            <label for="id_tipo_especie">Tipo de Especie:</label>
+            <select id="id_tipo_especie" name="tipo_especie">
+                <option value="fauna">Fauna</option>
+                <option value="flora">Flora</option>
+            </select>
+
+            <label for="id_estado_conservacion">Estado de Conservación:</label>
+            <select id="id_estado_conservacion" name="estado_conservacion">
+                <option value="en_peligro">En Peligro</option>
+                <option value="invasora">Invasora</option>
+                <option value="comun">Común</option>
+            </select>
+
             
             <label for="id_fotos">Fotos:</label>
-            <input type="file" id="id_fotos" name="imagenes" multiple>
-            <div class="preview-container" id="preview-container"></div>
+            <input type="file" name="imagenes" id="imagenes" multiple accept="image/png, image/jpeg">
+            <div id="preview-container"></div>
+            
+            <script>
+            document.getElementById("imagenes").addEventListener("change", function(event) {
+                let container = document.getElementById("preview-container");
+                container.innerHTML = "";  // Borra la vista previa anterior
+                const MAX_SIZE_MB = 5 * 1024 * 1024; // 5MB en bytes
+            
+                Array.from(event.target.files).forEach(file => {
+                    let ext = file.name.split('.').pop().toLowerCase();
+                    let img = document.createElement("img");
+                    img.style.width = "100px";
+                    img.style.margin = "5px";
+            
+                    if (file.size > MAX_SIZE_MB) { 
+                        let sizeError = document.createElement("div");
+                        sizeError.textContent = "Archivo demasiado grande (+5MB)";
+                        sizeError.style.color = "white";
+                        sizeError.style.background = "red";
+                        sizeError.style.padding = "5px";
+                        sizeError.style.width = "150px";
+                        sizeError.style.textAlign = "center";
+                        sizeError.style.margin = "5px";
+            
+                        container.appendChild(sizeError);
+                        return;
+                    }
+            
+                    if (['jpg', 'jpeg', 'png'].includes(ext)) {  
+                        let reader = new FileReader();
+                        reader.onload = function(e) {
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        let invalidMessage = document.createElement("div");
+                        invalidMessage.textContent = "Imagen inválida";
+                        invalidMessage.style.color = "white";
+                        invalidMessage.style.background = "red";
+                        invalidMessage.style.padding = "5px";
+                        invalidMessage.style.width = "100px";
+                        invalidMessage.style.textAlign = "center";
+                        invalidMessage.style.margin = "5px";
+            
+                        container.appendChild(invalidMessage);
+                        return;
+                    }
+            
+                    container.appendChild(img);
+                });
+            });
+            </script>
+             
             
             <label for="id_latitud">Latitud:</label>
             <input type="text" id="id_latitud" name="latitud">
@@ -118,34 +193,121 @@
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map').setView([4.5709, -74.2973], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        var marker;
-        function onMapClick(e) {
-            if (marker) {
-                map.removeLayer(marker);
+        document.addEventListener("DOMContentLoaded", function() {
+            var map = L.map('map').setView([4.5709, -74.2973], 6); // Colombia por defecto
+            var marker;
+            
+            // Definir los límites de Colombia
+            const COLOMBIA_BOUNDS = {
+                minLat: -4.231687,  // Sur (cerca de Leticia)
+                maxLat: 16.0000,    // Norte (Mar Caribe)
+                minLng: -81.7281,   // Oeste (Islas de Colombia)
+                maxLng: -66.8519    // Este (Frontera con Venezuela)
+            };
+    
+            // Cargar el mapa base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+    
+            function validarUbicacion(lat, lng) {
+                return (
+                    lat >= COLOMBIA_BOUNDS.minLat && lat <= COLOMBIA_BOUNDS.maxLat &&
+                    lng >= COLOMBIA_BOUNDS.minLng && lng <= COLOMBIA_BOUNDS.maxLng
+                );
             }
-            marker = L.marker(e.latlng).addTo(map);
-            document.getElementById("id_latitud").value = e.latlng.lat;
-            document.getElementById("id_longitud").value = e.latlng.lng;
-        }
-        map.on('click', onMapClick);
-        
-        document.getElementById('id_fotos').addEventListener('change', function(event) {
-            var previewContainer = document.getElementById('preview-container');
-            previewContainer.innerHTML = '';
-            Array.from(event.target.files).forEach(file => {
+    
+            function actualizarUbicacion(lat, lng) {
+                if (!validarUbicacion(lat, lng)) {
+                    alert("⚠️ Ubicación fuera de Colombia. Por favor, selecciona un punto dentro del país.");
+                    return;
+                }
+                document.getElementById("id_latitud").value = lat;
+                document.getElementById("id_longitud").value = lng;
+            }
+    
+            // Intentar obtener la ubicación del usuario
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        let lat = position.coords.latitude;
+                        let lng = position.coords.longitude;
+    
+                        if (!validarUbicacion(lat, lng)) {
+                            alert("⚠️ Tu ubicación detectada está fuera de Colombia. Por favor, selecciona un punto manualmente.");
+                            return;
+                        }
+    
+                        map.setView([lat, lng], 15);
+                        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    
+                        actualizarUbicacion(lat, lng);
+    
+                        marker.on("dragend", function(event) {
+                            let newLatLng = event.target.getLatLng();
+                            actualizarUbicacion(newLatLng.lat, newLatLng.lng);
+                        });
+                    },
+                    function(error) {
+                        alert("⚠️ No se pudo obtener tu ubicación. Activa el GPS o selecciona manualmente.");
+                    }
+                );
+            }
+    
+            // Permitir seleccionar una ubicación manualmente
+            map.on("click", function(event) {
+                let lat = event.latlng.lat;
+                let lng = event.latlng.lng;
+    
+                if (!validarUbicacion(lat, lng)) {
+                    alert("⚠️ Ubicación fuera de Colombia. Selecciona un punto dentro del país.");
+                    return;
+                }
+    
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                } else {
+                    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                    marker.on("dragend", function(event) {
+                        let newLatLng = event.target.getLatLng();
+                        actualizarUbicacion(newLatLng.lat, newLatLng.lng);
+                    });
+                }
+    
+                actualizarUbicacion(lat, lng);
+            });
+        });
+    </script>    
+<script>
+    document.getElementById('id_fotos').addEventListener('change', function(event) {
+        var allowedExtensions = ['jpg', 'jpeg', 'png'];
+        var files = event.target.files;
+        var previewContainer = document.getElementById('preview-container');
+        previewContainer.innerHTML = '';
+
+        var validFiles = [];
+        Array.from(files).forEach(file => {
+            var ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(ext)) {
+                alert("Solo se permiten imágenes en formato JPG y PNG.");
+            } else {
+                validFiles.push(file);
                 var reader = new FileReader();
                 reader.onload = function(e) {
                     var img = document.createElement('img');
                     img.src = e.target.result;
                     previewContainer.appendChild(img);
-                }
+                };
                 reader.readAsDataURL(file);
-            });
+            }
         });
-    </script>
+
+        // Reemplaza los archivos con solo los válidos
+        if (validFiles.length < files.length) {
+            event.target.value = '';  // Borra la selección si hubo errores
+            event.target.files = new DataTransfer().files;  // Reinicia el input
+        }
+    });
+</script>
 </body>
 </html>
