@@ -1,41 +1,44 @@
 from django.db import models
-from django.core.validators import FileExtensionValidator
-import uuid
+from django.forms import ValidationError
+import requests
+import os
+
 
 from django.db import models
-from django.core.validators import FileExtensionValidator
-import uuid
+def validar_extension_imagen(value):
+    ext = value.name.split('.')[-1].lower()
+    if ext not in ['jpg', 'jpeg', 'png']:
+        raise ValidationError('Solo se permiten imágenes en formato JPG y PNG.')
 
 class ReporteMaltrato(models.Model):
-    id_reporte = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    descripcion = models.TextField(verbose_name="Descripción del caso")
+    TIPO_ESPECIE_CHOICES = [
+        ('fauna', 'Fauna'),
+        ('flora', 'Flora'),
+    ]
+
+    ESTADO_CONSERVACION_CHOICES = [
+        ('en_peligro', 'En Peligro'),
+        ('invasora', 'Invasora'),
+        ('comun', 'Común'),
+    ]
+
+    nombre = models.CharField(max_length=255, blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
     latitud = models.FloatField()
     longitud = models.FloatField()
-    imagen = models.ImageField(upload_to='imagenes/', blank=True, null=True)
-    video = models.FileField(upload_to='videos/', blank=True, null=True, 
-                             validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    audio = models.FileField(upload_to='audios/', blank=True, null=True, 
-                             validators=[FileExtensionValidator(allowed_extensions=['mp3'])])
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    estado = models.CharField(max_length=20, choices=[
-        ('pendiente', 'Pendiente'),
-        ('en_proceso', 'En Proceso'),
-        ('resuelto', 'Resuelto')
-    ], default='pendiente')
+    publicado = models.BooleanField(default=False)
+    email = models.CharField(max_length=255, default='')
+    telefono = models.CharField(max_length=255, default='')
 
     def __str__(self):
-        return f"Reporte {self.id_reporte} - {self.estado}"
+        return f"{self.nombre} ({'Publicado' if self.publicado else 'Pendiente'})"
+
+ # Asegúrate de que este import esté al inicio del archivo
 
 class Evidencia(models.Model):
-    reporte = models.ForeignKey(ReporteMaltrato, related_name="evidencias", on_delete=models.CASCADE)
-    archivo = models.FileField(
-        upload_to="evidencias/",
-        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'png', 'mp4', 'mp3'])]
-    )
-    tipo = models.CharField(max_length=10, choices=[('foto', 'Foto'), ('video', 'Video'), ('audio', 'Audio')])
-
-    def __str__(self):
-        return f"Evidencia para Reporte {self.reporte.id_reporte}"
+    reporte = models.ForeignKey(ReporteMaltrato, related_name="imagenes", on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to="maltrato_animal/", validators=[validar_extension_imagen], default="default.jpg")
 
 
 # Create your models here.

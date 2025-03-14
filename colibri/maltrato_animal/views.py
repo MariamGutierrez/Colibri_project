@@ -1,18 +1,34 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import ReporteMaltrato
-from .forms import ReporteMaltratoForm
+from django.contrib import messages
+from .models import ReporteMaltrato, Evidencia
+from .forms import ReporteMaltratoForm, EvidenciaForm
 
-# Vista para crear un nuevo reporte
 def reportar_maltrato(request):
     if request.method == 'POST':
         form = ReporteMaltratoForm(request.POST, request.FILES)
+        
         if form.is_valid():
-            reporte = form.save()
-            return redirect('detalle_reporte', id_reporte=reporte.id_reporte)
+            # Guardar el reporte de maltrato
+            reporte = form.save(commit=False)
+            reporte.publicado = False  # No se publica automáticamente
+            reporte.save()
+
+            # Procesar las imágenes enviadas
+            for file in request.FILES.getlist('imagenes'):
+                evidencia = Evidencia(reporte=reporte, imagen=file)
+                evidencia.save()
+
+            messages.success(request, "Tu reporte ha sido enviado y está pendiente de aprobación.")
+            return redirect('lista_reportes')
+
+        else:
+            messages.error(request, "Hubo un error al enviar el reporte. Revisa los datos ingresados.")
+
     else:
         form = ReporteMaltratoForm()
 
     return render(request, 'maltrato_animal/reportar.html', {'form': form})
+
 
 # Vista para listar reportes
 def lista_reportes(request):

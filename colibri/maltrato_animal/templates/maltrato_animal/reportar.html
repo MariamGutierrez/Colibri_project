@@ -1,17 +1,107 @@
 <h1>Reportar Maltrato Animal</h1>
+
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+
+    <label for="id_nombre_completo">Nombre completo:</label>
+    {{ form.nombre_completo }}<br>
+
+    <label for="id_telefono">Número de teléfono:</label>
+    {{ form.telefono }}<br>
+
+    <label for="id_email">Correo electrónico:</label>
+    {{ form.email }}<br>
+
     <label for="id_descripcion">Descripción:</label>
     {{ form.descripcion }}<br>
+
+    <label>Ubicación:</label>
+    <div id="map" style="height: 400px; width: 100%;"></div>
     
+    <!-- Campos ocultos para almacenar la ubicación -->
+    <input type="hidden" id="id_latitud" name="latitud">
+    <input type="hidden" id="id_longitud" name="longitud">
+
     <label for="id_imagen">Imagen:</label>
     {{ form.imagen }}<br>
-    
+
     <label for="id_video">Video:</label>
     {{ form.video }}<br>
-    
+
     <label for="id_audio">Audio:</label>
     {{ form.audio }}<br>
-    
+
     <button type="submit">Enviar</button>
 </form>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var map = L.map('map').setView([4.5709, -74.2973], 6); // Centro en Colombia por defecto
+    var marker;
+
+    // Cargar el mapa de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Función para actualizar los campos ocultos de latitud y longitud
+    function actualizarUbicacion(lat, lng) {
+        document.getElementById("id_latitud").value = lat;
+        document.getElementById("id_longitud").value = lng;
+    }
+
+    // Intentar obtener la ubicación del usuario
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            
+            map.setView([lat, lng], 15); // Centrar en la ubicación detectada
+            
+            // Agregar marcador
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            actualizarUbicacion(lat, lng);
+
+            // Evento para actualizar coordenadas cuando el usuario mueve el marcador
+            marker.on("dragend", function(event) {
+                var newLatLng = event.target.getLatLng();
+                actualizarUbicacion(newLatLng.lat, newLatLng.lng);
+            });
+
+        }, function(error) {
+            alert("No se pudo obtener tu ubicación. Activa el GPS o selecciona manualmente.");
+        });
+    } else {
+        alert("Tu navegador no soporta la geolocalización.");
+    }
+
+    // Permitir que el usuario seleccione una ubicación haciendo clic en el mapa
+    map.on("click", function(event) {
+        var lat = event.latlng.lat;
+        var lng = event.latlng.lng;
+
+        if (marker) {
+            marker.setLatLng([lat, lng]); // Mover el marcador existente
+        } else {
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            marker.on("dragend", function(event) {
+                var newLatLng = event.target.getLatLng();
+                actualizarUbicacion(newLatLng.lat, newLatLng.lng);
+            });
+        }
+
+        actualizarUbicacion(lat, lng);
+    });
+});
+</script>

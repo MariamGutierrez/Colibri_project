@@ -4,26 +4,35 @@ from .models import ReporteMaltrato, Evidencia
 class ReporteMaltratoForm(forms.ModelForm):
     class Meta:
         model = ReporteMaltrato
-        fields = ['descripcion', 'imagen', 'video', 'audio']
-
+        fields = ['nombre', 'descripcion', 'latitud', 'longitud', 'tipo_especie', 'estado_conservacion']
 
     def clean(self):
         cleaned_data = super().clean()
         lat = cleaned_data.get("latitud")
         lng = cleaned_data.get("longitud")
 
-        # Validar que la ubicación está dentro de Colombia
         COLOMBIA_BOUNDS = {
-            "minLat": -4.231687, "maxLat": 16.0000,
-            "minLng": -81.7281, "maxLng": -66.8519
+            "minLat": -4.231687,  # Sur (Leticia)
+            "maxLat": 16.0000,    # Norte (Mar Caribe)
+            "minLng": -81.7281,   # Oeste (Islas de Colombia)
+            "maxLng": -66.8519    # Este (Frontera con Venezuela)
         }
+
         if not (COLOMBIA_BOUNDS["minLat"] <= lat <= COLOMBIA_BOUNDS["maxLat"]) or \
            not (COLOMBIA_BOUNDS["minLng"] <= lng <= COLOMBIA_BOUNDS["maxLng"]):
-            raise forms.ValidationError("Ubicación fuera de Colombia.")
+            raise forms.ValidationError("La ubicación seleccionada está fuera de Colombia.")
 
         return cleaned_data
 
 class EvidenciaForm(forms.ModelForm):
+    def clean_imagen(self):
+        imagen = self.cleaned_data.get('imagen')
+        if imagen:
+            ext = imagen.name.split('.')[-1].lower()
+            if ext not in ['jpg', 'jpeg', 'png']:
+                raise forms.ValidationError("Solo se permiten imágenes en formato JPG y PNG.")
+        return imagen
+
     class Meta:
         model = Evidencia
-        fields = ['archivo']
+        fields = ['imagen']
