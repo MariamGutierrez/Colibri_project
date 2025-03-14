@@ -30,6 +30,8 @@ class ReporteMaltrato(models.Model):
     publicado = models.BooleanField(default=False)
     email = models.CharField(max_length=255, default='')
     telefono = models.CharField(max_length=255, default='')
+    tipo_especie = models.CharField(max_length=10, choices=TIPO_ESPECIE_CHOICES, default='fauna')
+    estado_conservacion = models.CharField(max_length=20, choices=ESTADO_CONSERVACION_CHOICES, default='comun')
 
     def __str__(self):
         return f"{self.nombre} ({'Publicado' if self.publicado else 'Pendiente'})"
