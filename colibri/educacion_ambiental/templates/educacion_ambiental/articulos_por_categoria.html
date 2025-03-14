@@ -1,0 +1,101 @@
+<!-- filepath: c:\Users\User\Desktop\Colibri_project\colibri\educacion_ambiental\templates\educacion_ambiental\articulos_por_categoria.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artículos de {{ categoria }}</title>
+    <!-- Importar Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2F4F2F;
+            color: #F5F5DC;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 50px;
+            background-color: #3E5C3E;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+        h1 {
+            font-size: 3em;
+            text-align: center;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .card {
+            background-color: #4A7C59; /* Color menos brillante */
+            color: #F5F5DC;
+            padding: 20px;
+            border-radius: 10px;
+            transition: background 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+        .card:hover {
+            background-color: #3E5C3E; /* Color de hover más oscuro */
+        }
+        .card img {
+            border-radius: 10px;
+        }
+        .btn-outline-warning {
+            color: #F5F5DC;
+            border-color: #F5F5DC;
+        }
+        .btn-outline-warning:hover {
+            background-color: #F5F5DC;
+            color: #4A7C59;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Artículos de {{ categoria }}</h1>
+        <div class="row">
+            {% for articulo in articulos %}
+                {% if articulo.publish %}
+                    <div class="card">
+                        {% if articulo.imagen_principal %}
+                            <img src="{{ articulo.imagen_principal.imagen.url }}" class="card-img-top" alt="{{ articulo.titulo }}">
+                        {% else %}
+                            <img src="/static/default_image.jpg" class="card-img-top" alt="{{ articulo.titulo }}">
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h5 class="card-title mt-4 mb-4">{{ articulo.titulo }}</h5>
+                            <p class="card-text mt-3">{{ articulo.contenido|truncatewords:20 }}</p>
+                            <p class="card-text"><small class="text-muted">Fecha: {{ articulo.fecha_publicacion|date:"d M Y" }}</small></p>
+                            <a href="{% url 'articulo_detalle' articulo.id %}" class="btn btn-outline-warning w-50 d-block mx-auto text-center">Leer más</a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <p>No hay artículos disponibles.</p>
+            {% endfor %}
+        </div>
+        {% comment %} <div class="row">
+            <div class="col-12 text-center mt-4">
+                {% if last_updated %}
+                    <p>Última actualización: {{ last_updated|date:"d M Y H:i" }}</p>
+                {% else %}
+                    <p>No hay actualizaciones disponibles.</p>
+                {% endif %}
+            </div>
+        </div> {% endcomment %}
+    </div>
+    <!-- Importar Bootstrap JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

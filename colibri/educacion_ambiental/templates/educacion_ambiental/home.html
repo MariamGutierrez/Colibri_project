@@ -1,0 +1,92 @@
+<!-- filepath: c:\Users\User\Desktop\Colibri_project\colibri\educacion_ambiental\templates\educacion_ambiental\home.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educación Ambiental</title>
+    <!-- Importar Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #4DBF36;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 50px;
+        }
+        h1 {
+            font-size: 3em;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            max-width: 800px; /* Ajustar el ancho del contenedor */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .btn-custom {
+            background-color: #AEDD48;
+            color: #333;
+            padding: 30px;
+            text-decoration: none;
+            font-size: 1.5em;
+            border-radius: 10px; /* Bordes redondeados */
+            transition: background 0.3s;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px; /* Margen para que no se toquen */
+        }
+        .btn-custom:hover {
+            background-color: #9BCF35;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Educación Ambiental</h1>
+        <p>Explora y aprende sobre la flora, fauna y prácticas sostenibles.</p>
+        <div class="buttons">
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="{% url 'articulos_por_categoria' 'flora' %}" class="btn btn-custom">Flora</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'articulos_por_categoria' 'fauna' %}" class="btn btn-custom">Fauna</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'articulos_por_categoria' 'especies_en_peligro' %}" class="btn btn-custom">Especies en Peligro</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'articulos_por_categoria' 'conservacion' %}" class="btn btn-custom">Conservación</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'articulos_por_categoria' 'practicas_sostenibles' %}" class="btn btn-custom">Prácticas Sostenibles</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="javascript:history.back()" class="btn btn-custom">Regresar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Importar Bootstrap JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
