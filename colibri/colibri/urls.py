@@ -25,6 +25,7 @@ urlpatterns = [
     path('avistamientos/', include('avistamientos.urls')),
     path('maltrato_animal/', include('maltrato_animal.urls')),
     path('educacion_ambiental/', include('educacion_ambiental.urls')),
+    path('usuarios/', include('users.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
