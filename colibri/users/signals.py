@@ -5,12 +5,12 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 Animal = apps.get_model('users', 'Animal')  # Obtener el modelo dinámicamente
-content_type = ContentType.objects.get_for_model(Animal)
+#content_type = ContentType.objects.get_for_model(Animal)
 
 # Crear grupos
-admin_group, _ = Group.objects.get_or_create(name='Administradores')
-editor_group, _ = Group.objects.get_or_create(name='Editores')
-viewer_group, _ = Group.objects.get_or_create(name='Visitantes')
+#admin_group, _ = Group.objects.get_or_create(name='Administradores')
+#editor_group, _ = Group.objects.get_or_create(name='Editores')
+#viewer_group, _ = Group.objects.get_or_create(name='Visitantes')
 
 # Definir permisos
 permissions = [
@@ -24,11 +24,11 @@ for codename, name in permissions:
     perm, _ = Permission.objects.get_or_create(
         codename=codename,
         name=name,
-        content_type=content_type
+        #content_type=content_type
     )
     if codename.startswith("add") or codename.startswith("change") or codename.startswith("delete"):
-        admin_group.permissions.add(perm)
-        editor_group.permissions.add(perm)
+        #admin_group.permissions.add(perm)
+        #editor_group.permissions.add(perm)
     else:
-        viewer_group.permissions.add(perm)
+        #viewer_group.permissions.add(perm)
 
