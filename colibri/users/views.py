@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from .forms import RegistroVisitanteForm
 from django.contrib import messages
+from .utils import UserDAO
 
 def registro_visitante(request):
     if request.method == 'POST':
@@ -19,10 +20,11 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
+        user = UserDAO.get_user_by_username(username)
+
+        if user and user.check_password(password):
             login(request, user)
-            return redirect("inicio")  # Redirige a la página principal después de iniciar sesión
+            return redirect("inicio")  
         else:
             messages.error(request, "Usuario o contraseña incorrectos.")
     
