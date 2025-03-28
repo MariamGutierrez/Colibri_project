@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'avistamientos',
     'maltrato_animal',
     'educacion_ambiental',
-    'django_extensions'
 ]
 
 MIDDLEWARE = [
