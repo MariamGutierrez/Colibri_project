@@ -1,0 +1,97 @@
+<!-- templates/maltrato_animal/reportar.html -->
+{% extends "reportes/base.html" %}
+{% block title %}Reportar Caso{% endblock %}
+{% block content %}
+<style>
+    form div {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+    }
+
+    form label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    form input, form textarea {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+<h2>Reportar un Caso de Maltrato Animal</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div>
+        {{ form.nombre.label_tag }}
+        {{ form.nombre }}
+    </div>
+    <div>
+        {{ form.tipo_reporte.label_tag }}
+        {{ form.tipo_reporte }}
+    </div>
+
+    <div>
+        {{ form.descripcion.label_tag }}
+        {{ form.descripcion }}
+    </div>
+
+    <div>
+        <label for="id_imagen">Subir Imagen:</label>
+        <input type="file" name="imagen" id="id_imagen">
+    </div>
+
+    <div>
+        <label for="id_video">Subir Video:</label>
+        <input type="file" name="video" id="id_video">
+    </div>
+
+    <div>
+        <label for="id_audio">Subir Audio:</label>
+        <input type="file" name="audio" id="id_audio">
+    </div>
+
+    <div>
+        <label for="id_latitud">Latitud:</label>
+        <input type="text" id="id_latitud" name="latitud" readonly>
+    </div>
+
+    <div>
+        <label for="id_longitud">Longitud:</label>
+        <input type="text" id="id_longitud" name="longitud" readonly>
+    </div>
+
+    <div id="map" style="height: 400px;"></div>
+
+    <button type="submit" class="btn btn-success">Enviar Reporte</button>
+</form>
+
+
+<!-- Agregar Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([4.7110, -74.0721], 12); // Coordenadas de Bogotá por defecto
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    
+    var marker;
+    
+    function onMapClick(e) {
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+        
+        document.getElementById("id_latitud").value = e.latlng.lat;
+        document.getElementById("id_longitud").value = e.latlng.lng;
+    }
+    
+    map.on('click', onMapClick);
+</script>
+{% endblock %}

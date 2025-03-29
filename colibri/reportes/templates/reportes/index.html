@@ -1,0 +1,9 @@
+<!-- templates/maltrato_animal/index.html -->
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<h1 class="text-center">Bienvenido a la Plataforma de Denuncias</h1>
+<p class="text-center">Aquí puedes reportar casos de maltrato animal.</p>
+<a href="{% url 'reportar_caso' %}" class="btn btn-primary">Reportar un caso</a>
+{% endblock %}
+

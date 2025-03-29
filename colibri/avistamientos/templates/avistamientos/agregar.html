@@ -30,25 +30,25 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
         label {
             font-weight: bold;
             margin-bottom: 5px;
             display: block;
         }
-        input, textarea, button, #map {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            font-size: 16px;
-            background-color: #F5F5DC;
-            color: #2F4F2F;
+        input[type="text"],
+        textarea,
+        select {
+            width: calc(100% - 20px);
+            padding: 12px; /* Aumenta el padding */
+            font-size: 18px; /* Hace el texto más grande */
+            height: 45px;
         }
         textarea {
-            height: 100px;
-            resize: none;
+            height: 100px; /* Ajusta la altura de la descripción */
+            min-height: 100px;
+            max-height: 200px;
         }
         button {
             background-color: #F5F5DC;

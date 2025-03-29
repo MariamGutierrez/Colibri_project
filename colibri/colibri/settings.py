@@ -28,6 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+# Definir claves de sesión separadas
+SESSION_COOKIE_NAME = "frontend_session"
 
 # Application definition
 
@@ -40,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'avistamientos',
-    'maltrato_animal',
+    'reportes',
     'educacion_ambiental',
 ]
 
@@ -52,7 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware'
+    'django.middleware.csrf.CsrfViewMiddleware',
+    "users.middlewares.AdminSessionMiddleware",
 ]
 
 ROOT_URLCONF = 'colibri.urls'

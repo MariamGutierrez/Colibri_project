@@ -2,10 +2,10 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model() 
 
-class UserDAO:
+class UserDAO: 
     """ Data Access Object para la gestión de usuarios """
 
-    @staticmethod
+    @staticmethod 
     def get_user_by_id(user_id):
         """ Obtiene un usuario por su ID """
         try:

@@ -19,13 +19,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from avistamientos.views import inicio
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('', inicio, name="inicio"),
     path('admin/', admin.site.urls),
     path('avistamientos/', include('avistamientos.urls')),
-    path('maltrato_animal/', include('maltrato_animal.urls')),
+    path('reportes/', include('reportes.urls')),
     path('educacion_ambiental/', include('educacion_ambiental.urls')),
     path('usuarios/', include('users.urls')),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

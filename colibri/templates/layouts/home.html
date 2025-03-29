@@ -9,7 +9,7 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #4DBF36;
+            background-color: #2F4F2F;
             color: white;
             margin: 0;
             padding: 0;
@@ -31,8 +31,8 @@
             margin-top: 20px;
         }
         .btn {
-            background-color: #AEDD48;
-            color: #333;
+            background-color: #4A6653;
+            color: #f3f3f3;
             padding: 15px 25px;
             text-decoration: none;
             font-size: 1.2em;
@@ -41,10 +41,37 @@
         }
         .btn:hover {
             background-color: #9BCF35;
+            color: #061709;
+        }
+        .top-right-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #FFA500;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 1em;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .top-right-button:hover {
+            background-color: #FF8C00;
         }
     </style>
 </head>
 <body>
+    <div class="top-left">
+        {% if user.is_authenticated %}
+            <span class="user-name" onclick="toggleLogout()">Bienvenido, {{ user.username }}</span>
+            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Cerrar Sesión</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="top-left-button">LogIn</a>
+        {% endif %}
+    </div>
     <div class="container">
         <h1>Bienvenido a Colibri</h1>
         <p>Explora y comparte avistamientos de fauna en tu región.</p>
@@ -52,8 +79,70 @@
             <a href="/avistamientos/" class="btn">Ver Avistamientos</a>
             <a href="/avistamientos/agregar/" class="btn">Agregar Avistamiento</a>
             <a href="/educacion_ambiental/" class="btn">Sección de Educación Ambiental</a>
-            <a href="/maltrato_animal/reportar/" class="btn">Realizar reporte de maltrato animal</a>
+            <a href="/reportes/reportar/" class="btn">Realizar reporte de maltrato animal</a>
         </div>
     </div>
+
+    <style>
+        .top-left {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.2em;
+            color: white;
+        }
+        .top-left-button {
+            background-color: #4A6653;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .top-left-button:hover {
+            background-color: #9BCF35;
+        }
+    </style>
+    <style>
+        .top-left {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.2em;
+            color: white;
+        }
+    
+        .user-name {
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    
+        .logout-button {
+            background-color: #FFA500;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-top: 5px;
+        }
+    
+        .logout-button:hover {
+            background-color: #FF8C00;
+        }
+    </style>
 </body>
+<script>
+    function toggleLogout() {
+        var logoutForm = document.getElementById("logout-form");
+        if (logoutForm.style.display === "none") {
+            logoutForm.style.display = "block";
+        } else {
+            logoutForm.style.display = "none";
+        }
+    }
+</script>
+
 </html>
