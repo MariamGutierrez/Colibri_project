@@ -86,6 +86,48 @@
         a:hover {
             text-decoration: underline;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+        }
+        .modal img {
+            width: 50%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+        
+        .modal button {
+            margin-top: 20px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            color: black;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +233,16 @@
         </form>
         <a href="{% url 'listar_avistamientos' %}">Volver a la lista</a>
     </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <img src="https://i.pinimg.com/736x/93/4c/81/934c814c900a28e41fa02d8dc489ed75.jpg" alt="Error" />
+            <p>Por favor, completa los campos requeridos: Título y al menos una imagen.</p>
+            <button onclick="closeModal()">Ok</button>
+        </div>
+    </div>
+    
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -277,8 +329,30 @@
                 actualizarUbicacion(lat, lng);
             });
         });
-    </script>    
-<script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();  // Evitar el envío por defecto del formulario
+        
+            const nombre = document.getElementById('id_nombre').value;
+            const imagenes = document.getElementById('imagenes').files;
+            
+            // Verificar que haya un título y al menos una imagen
+            if (!nombre || imagenes.length === 0) {
+                showModal();  // Mostrar el modal si los campos no están completos
+            } else {
+                this.submit();  // Si todo está completo, enviar el formulario
+            }
+        });
+        
+        function showModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'flex';  // Mostrar el modal
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';  // Ocultar el modal
+        }
+        
     document.getElementById('id_fotos').addEventListener('change', function(event) {
         var allowedExtensions = ['jpg', 'jpeg', 'png'];
         var files = event.target.files;
@@ -308,6 +382,7 @@
             event.target.files = new DataTransfer().files;  // Reinicia el input
         }
     });
+
 </script>
 </body>
 </html>
