@@ -1,0 +1,48 @@
+{% extends 'reportes/base.html' %}
+
+{% block content %}
+<h2>Lista de Reportes</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Descripción</th>
+        <th>Fecha</th>
+        <th>Imagen</th>
+        <th>Video</th>
+        <th>Audio</th>
+    </tr>
+    {% for reporte in reportes %}
+    <tr>
+        <td>{{ reporte.id }}</td>
+        <td>{{ reporte.descripcion }}</td>
+        <td>{{ reporte.fecha }}</td>
+        <td>
+            {% if reporte.imagen %}
+                <img src="{{ reporte.imagen.url }}" width="100">
+            {% else %}
+                No hay imagen
+            {% endif %}
+        </td>
+        <td>
+            {% if reporte.video %}
+                <a href="{{ reporte.video.url }}" target="_blank">Ver Video</a>
+            {% else %}
+                No hay video
+            {% endif %}
+        </td>
+        <td>
+            {% if reporte.audio %}
+                <audio controls>
+                    <source src="{{ reporte.audio.url }}" type="audio/mpeg">
+                    Tu navegador no soporta audio.
+                </audio>
+            {% else %}
+                No hay audio
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

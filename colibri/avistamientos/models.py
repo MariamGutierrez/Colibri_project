@@ -4,9 +4,6 @@ import os
 # from apps.avistamientos.views import identificar_especie  # Esto causa un error de importación circular
 from avistamientos.utils import identificar_especie  # Ahora importamos desde utils.py
 from django.core.exceptions import ValidationError
-
-
-from django.db import models
 def validar_extension_imagen(value):
     ext = value.name.split('.')[-1].lower()
     if ext not in ['jpg', 'jpeg', 'png']:

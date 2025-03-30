@@ -3,9 +3,14 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import GroupAdmin
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import redirect
 
 User = get_user_model()
+def es_admin(user):
+    return user.is_staff
 
+admin.site.login = user_passes_test(es_admin, login_url="/")(admin.site.login)
 # Agregar permisos en la vista de usuario
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
