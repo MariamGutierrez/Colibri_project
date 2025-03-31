@@ -183,6 +183,9 @@
             
             <label for="id_longitud">Longitud:</label>
             <input type="text" id="id_longitud" name="longitud">
+
+            <!-- Botón para actualizar el mapa -->
+            <button type="button" id="update-map-btn">Actualizar Mapa</button>
             
             <label for="map">Selecciona la ubicación:</label>
             <div id="map"></div>
@@ -196,7 +199,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             var map = L.map('map').setView([4.5709, -74.2973], 6); // Colombia por defecto
             var marker;
-            
+    
             // Definir los límites de Colombia
             const COLOMBIA_BOUNDS = {
                 minLat: -4.231687,  // Sur (cerca de Leticia)
@@ -224,7 +227,32 @@
                 }
                 document.getElementById("id_latitud").value = lat;
                 document.getElementById("id_longitud").value = lng;
+    
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                } else {
+                    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                    marker.on("dragend", function(event) {
+                        let newLatLng = event.target.getLatLng();
+                        actualizarUbicacion(newLatLng.lat, newLatLng.lng);
+                    });
+                }
+    
+                map.setView([lat, lng], 15);
             }
+    
+            // Evento para el botón de actualizar mapa
+            document.getElementById("update-map-btn").addEventListener("click", function() {
+                let lat = parseFloat(document.getElementById("id_latitud").value);
+                let lng = parseFloat(document.getElementById("id_longitud").value);
+    
+                if (isNaN(lat) || isNaN(lng)) {
+                    alert("⚠️ Por favor, ingresa valores válidos para latitud y longitud.");
+                    return;
+                }
+    
+                actualizarUbicacion(lat, lng);
+            });
     
             // Intentar obtener la ubicación del usuario
             if (navigator.geolocation) {
@@ -277,7 +305,7 @@
                 actualizarUbicacion(lat, lng);
             });
         });
-    </script>    
+    </script> 
 <script>
     document.getElementById('id_fotos').addEventListener('change', function(event) {
         var allowedExtensions = ['jpg', 'jpeg', 'png'];
