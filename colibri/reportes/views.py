@@ -3,6 +3,8 @@ from .models import Reporte
 from .forms import ReporteForm
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from .utils import enviar_reporte_por_correo
 
 @login_required  # Asegura que solo usuarios autenticados pueden reportar
 def reportar_maltrato(request):
@@ -25,3 +27,14 @@ class ListaReportesView(ListView):
     model = Reporte
     template_name = 'reportes/lista_reportes.html'
     context_object_name = 'reportes'
+
+@staff_member_required
+def enviar_alerta(request, reporte_id):
+    reporte = Reporte.objects.get(id=reporte_id)
+
+    if not reporte.alerta_enviada:
+        enviar_reporte_por_correo(reporte)
+        reporte.alerta_enviada = True
+        reporte.save()
+
+    return redirect('lista_reportes')

@@ -1,8 +1,9 @@
 from django.db import models
 import requests
 import os
+from django.contrib.auth.models import User
 # from apps.avistamientos.views import identificar_especie  # Esto causa un error de importación circular
-from avistamientos.utils import identificar_especie  # Ahora importamos desde utils.py
+from avistamientos.utils import identificar_especie 
 from django.core.exceptions import ValidationError
 def validar_extension_imagen(value):
     ext = value.name.split('.')[-1].lower()
@@ -10,6 +11,7 @@ def validar_extension_imagen(value):
         raise ValidationError('Solo se permiten imágenes en formato JPG y PNG.')
 
 class Avistamiento(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     TIPO_ESPECIE_CHOICES = [
         ('fauna', 'Fauna'),
         ('flora', 'Flora'),
