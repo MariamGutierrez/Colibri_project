@@ -11,9 +11,9 @@ class VideoArticuloInline(admin.TabularInline):
 
 class ArticuloAdmin(admin.ModelAdmin):
     inlines = [ImagenArticuloInline, VideoArticuloInline]
-    list_display = ('titulo', 'categoria', 'fecha_publicacion', 'publish')
+    list_display = ('titulo', 'categoria', 'region', 'fecha_publicacion', 'publish')  # Agregar 'region'
     search_fields = ('titulo', 'contenido')
-    list_filter = ('categoria', 'fecha_publicacion', 'publish')
+    list_filter = ('categoria', 'region', 'fecha_publicacion', 'publish')  # Agregar 'region'
 
 admin.site.register(Articulo, ArticuloAdmin)
 admin.site.register(ImagenArticulo)
