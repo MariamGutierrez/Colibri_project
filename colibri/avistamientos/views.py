@@ -46,7 +46,8 @@ def agregar_avistamiento(request):
         
         if form.is_valid():
             avistamiento = form.save(commit=False)
-            avistamiento.publicado = False  # No se publica automáticamente
+            avistamiento.usuario = request.user  # <- Asignar el usuario actual
+            avistamiento.publicado = False
             avistamiento.save()
 
             imagenes_validas = []

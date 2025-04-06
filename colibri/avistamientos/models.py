@@ -11,7 +11,7 @@ def validar_extension_imagen(value):
         raise ValidationError('Solo se permiten imágenes en formato JPG y PNG.')
 
 class Avistamiento(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     TIPO_ESPECIE_CHOICES = [
         ('fauna', 'Fauna'),
         ('flora', 'Flora'),
