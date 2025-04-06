@@ -229,7 +229,6 @@
                                         {% endif %}
                                         <div class="card-body text-center">
                                             <h5 class="card-title mt-4 mb-4">{{ articulo.titulo }}</h5>
-                                            <p class="card-text mt-3">{{ articulo.contenido|truncatewords:20 }}</p>
                                             <a href="{% url 'articulo_detalle' articulo.id %}" class="btn btn-outline-warning w-50 d-block mx-auto text-center">Leer más</a>
                                         </div>
                                     </div>
