@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TipoReporte, Reporte
+from .models import TipoReporte, Reporte, EliminacionParcialReporte
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages  # Reemplaza con los modelos que has creado
@@ -39,5 +39,24 @@ class ReporteAdmin(admin.ModelAdmin):
     list_filter = ('tipo_reporte', 'alerta_enviada')
     actions = [enviar_alerta_por_correo]
 
+    def delete_model(self, request, obj):
+        # Guarda un registro en EliminacionParcialReporte antes de eliminar
+        EliminacionParcialReporte.objects.create(
+            titulo=obj.titulo,
+        )
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        # Maneja la eliminación de múltiples objetos
+        for obj in queryset:
+            EliminacionParcialReporte.objects.create(
+                titulo=obj.titulo,
+            )
+        queryset.delete()
+
 admin.site.register(Reporte, ReporteAdmin)
-admin.site.register(TipoReporte)
+
+@admin.register(EliminacionParcialReporte)
+class EliminacionParcialAvistamientoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'fecha_eliminacion', 'fecha_expiracion')
+    search_fields = ('titulo',)

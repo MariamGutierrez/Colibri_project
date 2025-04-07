@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/media/educacion_ambiental/logo.png" type="image/png">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -144,7 +145,12 @@
         .user-auth-area {
             position: relative;
             z-index: 1100;
+            margin-left: 20px;
         }
+        #logout-form {
+            margin-top: 10px;
+        }
+
         .user-name {
             cursor: pointer;
             font-weight: 600;
@@ -171,8 +177,7 @@
             margin-top: 10px;
             min-width: 200px;
             z-index: 1200;
-        }
-        .logout-button {
+        }        .logout-button, .account-button {
             background-color: #9BCF35;
             color: #061709;
             padding: 8px 20px;
@@ -182,6 +187,20 @@
             font-weight: 600;
             width: 100%;
             transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .account-button {
+            text-decoration: none;
+        }
+        .account-button:hover {
+            background-color: #B8E05A;
+            transform: scale(1.05);
+        }
+
+        .account-button:hover, .logout-button:hover {
+            color: #061709; 
         }
         .logout-button:hover {
             background-color: #B8E05A;
@@ -288,48 +307,54 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                Colibri
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/avistamientos/">Avistamientos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/educacion_ambiental/">Educación Ambiental</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/reportes/reportar/">Reportes</a>
-                    </li>
-                    <li class="nav-item user-auth-area">
-                        {% if user.is_authenticated %}
-                            <span class="user-name" onclick="toggleLogout()"><i class="fas fa-user-circle"></i>{{ user.username }}</span>
-                            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                                {% csrf_token %}
-                                <button type="submit" class="logout-button">Cerrar Sesión</button>
-                            </form>
-                        {% else %}
-                            <a href="{% url 'login' %}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
-                        {% endif %}
-                    </li>
-                </ul>
+    <body style="padding-top: 80px;"> <!-- Ajuste para evitar que el header se sobreponga al contenido -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <img src="/media/educacion_ambiental/logo.png" alt="Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+                    Colibri
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/avistamientos/">Avistamientos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/educacion_ambiental/">Educación Ambiental</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reportes/reportar/">Reportes</a>
+                        </li>
+                        <li class="nav-item user-auth-area">
+                            {% if user.is_authenticated %}
+                                <span class="user-name" onclick="toggleLogout()"><i class="fas fa-user-circle"></i>{{ user.username }}</span>
+                                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                                    {% csrf_token %}
+                                    <a href="{% url 'ver_cuenta' %}" class="account-button">Ver cuenta</a>
+                                    <p></p>
+                                    <button type="submit" class="logout-button">Cerrar Sesión</button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
+                <p></p>
+                <p></p>
                 <h1>Colibri: Conservación Colombia</h1>
                 <p>Explora, aprende y contribuye a la conservación de la biodiversidad colombiana</p>
                 <div class="hero-buttons">
@@ -364,7 +389,7 @@
                             <i class="fas fa-plus-circle"></i>
                         </div>
                         <h3 class="feature-title">Registrar</h3>
-                        <p class="feature-description">Comparte tus propios avistamientos de fauna y contribuye a nuestra base de datos.</p>
+                        <p class="feature-description">Comparte tus avistamientos de fauna y contribuye a nuestra base de datos.</p>
                         <a href="/avistamientos/agregar/" class="btn-custom">Agregar</a>
                     </div>
                 </div>

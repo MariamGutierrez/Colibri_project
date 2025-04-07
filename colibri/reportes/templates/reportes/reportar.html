@@ -1,12 +1,12 @@
-<!-- templates/maltrato_animal/reportar.html -->
 {% extends "reportes/base.html" %}
 {% block title %}Reportar Caso{% endblock %}
 {% block content %}
 <style>
+    /* Estilos generales para los campos del formulario */
     form div {
         display: flex;
         flex-direction: column;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     form label {
@@ -15,83 +15,114 @@
     }
 
     form input, form textarea {
-        padding: 8px;
+        padding: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    /* Ajuste del estilo de la imagen y video */
+    input[type="file"] {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 8px;
+    }
+
+    /* Tamaño del mapa */
+    #map {
+        height: 400px;
+        margin-bottom: 20px;
     }
 </style>
-<h2>Reportar un Caso de Maltrato Animal</h2>
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
 
-    <div>
-        {{ form.nombre.label_tag }}
-        {{ form.nombre }}
-    </div>
-    <div>
-        {{ form.tipo_reporte.label_tag }}
-        {{ form.tipo_reporte }}
-    </div>
+<div class="container py-5">
+    <h2 class="mb-4">Reportar un Caso de Maltrato Animal</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.nombre.label_tag }}
+                    {{ form.nombre }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.tipo_reporte.label_tag }}
+                    {{ form.tipo_reporte }}
+                </div>
+            </div>
+        </div>
 
-    <div>
-        {{ form.descripcion.label_tag }}
-        {{ form.descripcion }}
-    </div>
+        <div class="form-group">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+        </div>
 
-    <div>
-        <label for="id_imagen">Subir Imagen:</label>
-        <input type="file" name="imagen" id="id_imagen">
-    </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_imagen">Subir Imagen:</label>
+                    <input type="file" name="imagen" id="id_imagen" class="form-control">
+                </div>
+            </div>
 
-    <div>
-        <label for="id_video">Subir Video:</label>
-        <input type="file" name="video" id="id_video">
-    </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_video">Subir Video:</label>
+                    <input type="file" name="video" id="id_video" class="form-control">
+                </div>
+            </div>
 
-    <div>
-        <label for="id_audio">Subir Audio:</label>
-        <input type="file" name="audio" id="id_audio">
-    </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_audio">Subir Audio:</label>
+                    <input type="file" name="audio" id="id_audio" class="form-control">
+                </div>
+            </div>
+        </div>
 
-    <div>
-        <label for="id_latitud">Latitud:</label>
-        <input type="text" id="id_latitud" name="latitud" readonly>
-    </div>
+        <div class="form-group">
+            <label for="id_latitud">Latitud:</label>
+            <input type="text" id="id_latitud" name="latitud" class="form-control" readonly>
+        </div>
 
-    <div>
-        <label for="id_longitud">Longitud:</label>
-        <input type="text" id="id_longitud" name="longitud" readonly>
-    </div>
+        <div class="form-group">
+            <label for="id_longitud">Longitud:</label>
+            <input type="text" id="id_longitud" name="longitud" class="form-control" readonly>
+        </div>
 
-    <div id="map" style="height: 400px;"></div>
+        <div id="map" class="mb-4"></div>
 
-    <button type="submit" class="btn btn-success">Enviar Reporte</button>
-</form>
-
+        <button type="submit" class="btn btn-success">Enviar Reporte</button>
+    </form>
+</div>
 
 <!-- Agregar Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
     var map = L.map('map').setView([4.7110, -74.0721], 12); // Coordenadas de Bogotá por defecto
-    
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
-    
+
     var marker;
-    
+
     function onMapClick(e) {
         if (marker) {
             marker.setLatLng(e.latlng);
         } else {
             marker = L.marker(e.latlng).addTo(map);
         }
-        
+
         document.getElementById("id_latitud").value = e.latlng.lat;
         document.getElementById("id_longitud").value = e.latlng.lng;
     }
-    
+
     map.on('click', onMapClick);
 </script>
 {% endblock %}
