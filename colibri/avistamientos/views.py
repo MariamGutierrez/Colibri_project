@@ -44,31 +44,39 @@ def agregar_avistamiento(request):
     if request.method == 'POST':
         form = AvistamientoForm(request.POST)
         
-        if form.is_valid():
+        imagenes_validas = []
+        errores_imagenes = False  # <- Bandera para saber si hubo algún error
+
+        for file in request.FILES.getlist('imagenes'):
+            imagen_form = ImagenAvistamientoForm({'avistamiento': 0}, {'imagen': file})  # avistamiento se ignora
+            if imagen_form.is_valid():
+                imagenes_validas.append(file)
+            else:
+                errores_imagenes = True
+                messages.error(request, f"Formato no permitido: {file.name}")
+
+        if form.is_valid() and imagenes_validas and not errores_imagenes:
             avistamiento = form.save(commit=False)
-            avistamiento.usuario = request.user  # <- Asignar el usuario actual
+            avistamiento.usuario = request.user
             avistamiento.publicado = False
             avistamiento.save()
 
-            imagenes_validas = []
-            for file in request.FILES.getlist('imagenes'):
-                imagen_form = ImagenAvistamientoForm({'avistamiento': avistamiento.id}, {'imagen': file})
-                if imagen_form.is_valid():  # Ahora validamos correctamente usando Django Forms
-                    imagenes_validas.append(ImagenAvistamiento(avistamiento=avistamiento, imagen=file))
-                else:
-                    messages.error(request, f"Formato no permitido: {file.name}")
-
-            if imagenes_validas:
-                ImagenAvistamiento.objects.bulk_create(imagenes_validas)
+            # Guardar las imágenes válidas
+            for img in imagenes_validas:
+                ImagenAvistamiento.objects.create(avistamiento=avistamiento, imagen=img)
 
             messages.success(request, "Tu avistamiento ha sido enviado y está pendiente de aprobación.")
             return redirect('listar_avistamientos')
+        else:
+            if not imagenes_validas:
+                messages.error(request, "Debes subir al menos una imagen válida.")
 
     else:
         form = AvistamientoForm()
         imagenes_form = ImagenAvistamientoForm()
 
     return render(request, 'avistamientos/agregar.html', {'form': form, 'imagenes_form': imagenes_form})
+
 
 
 def inicio(request):

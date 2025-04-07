@@ -63,19 +63,21 @@
             height: 300px;
             border-radius: 8px;
         }
-        .preview-container {
+        #preview-container {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
-        .preview-container img {
-            width: 80px;
-            height: 80px;
+
+        #preview-container img {
+            max-width: 100px;
+            height: auto;
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid #F5F5DC;
         }
+
         a {
             display: block;
             margin-top: 20px;
@@ -189,7 +191,7 @@
             
             <label for="map">Selecciona la ubicación:</label>
             <div id="map"></div>
-            
+            <div id="image-error" style="display:none; color: white; background: red; padding: 8px; border-radius: 5px;"></div>
             <button type="submit">Guardar</button>
         </form>
         <a href="{% url 'listar_avistamientos' %}">Volver a la lista</a>
@@ -307,35 +309,80 @@
         });
     </script> 
 <script>
-    document.getElementById('id_fotos').addEventListener('change', function(event) {
-        var allowedExtensions = ['jpg', 'jpeg', 'png'];
-        var files = event.target.files;
-        var previewContainer = document.getElementById('preview-container');
-        previewContainer.innerHTML = '';
+    document.addEventListener("DOMContentLoaded", function () {
+        const imagenesInput = document.getElementById("imagenes");
+        const form = document.querySelector("form");
+        const previewContainer = document.getElementById("preview-container");
+        const errorContainer = document.getElementById("image-error");
+    
+        let imagenesValidas = true;
+    
+        imagenesInput.addEventListener("change", function (event) {
+            errorContainer.style.display = "none";
+            imagenesValidas = true;
+    
+            const files = Array.from(event.target.files);
+            const allowedExtensions = ['jpg', 'jpeg', 'png'];
+            const MAX_SIZE_MB = 5 * 1024 * 1024;
+    
+            files.forEach((file) => {
+                const reader = new FileReader();
 
-        var validFiles = [];
-        Array.from(files).forEach(file => {
-            var ext = file.name.split('.').pop().toLowerCase();
-            if (!allowedExtensions.includes(ext)) {
-                alert("Solo se permiten imágenes en formato JPG y PNG.");
-            } else {
-                validFiles.push(file);
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var img = document.createElement('img');
+                reader.onload = function (e) {
+                    // Verificar si ya existe una imagen con el mismo src para evitar duplicados
+                    const existing = Array.from(previewContainer.querySelectorAll("img")).some(
+                        img => img.src === e.target.result
+                    );
+                    if (existing) return;
+
+                    const img = document.createElement("img");
                     img.src = e.target.result;
+
+                    // Mecanismo de doble clic para eliminar
+                    let clickTimeout;
+                    img.dataset.deleteConfirm = "false";
+
+                    img.addEventListener("click", function () {
+                        if (img.dataset.deleteConfirm === "true") {
+                            img.remove();
+                        } else {
+                            img.dataset.deleteConfirm = "true";
+                            img.style.border = "2px dashed red";
+                            img.title = "Haz clic de nuevo para eliminar esta imagen";
+
+                            clearTimeout(clickTimeout);
+                            clickTimeout = setTimeout(() => {
+                                img.dataset.deleteConfirm = "false";
+                                img.style.border = "2px solid #F5F5DC";
+                                img.title = "";
+                            }, 1500);
+                        }
+                    });
+
                     previewContainer.appendChild(img);
                 };
+
                 reader.readAsDataURL(file);
+            });
+
+            // Limpia el input para permitir volver a seleccionar los mismos archivos
+            this.value = "";
+        });
+    
+            if (!imagenesValidas) {
+                errorContainer.textContent = "⚠️ Solo se permiten imágenes JPG/PNG y menores de 5MB.";
+                errorContainer.style.display = "block";
             }
         });
-
-        // Reemplaza los archivos con solo los válidos
-        if (validFiles.length < files.length) {
-            event.target.value = '';  // Borra la selección si hubo errores
-            event.target.files = new DataTransfer().files;  // Reinicia el input
-        }
+    
+        form.addEventListener("submit", function (e) {
+            if (!imagenesValidas) {
+                e.preventDefault();
+                errorContainer.textContent = "⚠️ Corrige los errores de las imágenes antes de enviar.";
+                errorContainer.style.display = "block";
+            }
+        });
     });
-</script>
+    </script>    
 </body>
 </html>
