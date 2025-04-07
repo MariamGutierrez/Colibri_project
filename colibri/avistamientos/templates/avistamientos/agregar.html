@@ -88,6 +88,48 @@
         a:hover {
             text-decoration: underline;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+        }
+        .modal img {
+            width: 50%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+        
+        .modal button {
+            margin-top: 20px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            color: black;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -196,6 +238,16 @@
         </form>
         <a href="{% url 'listar_avistamientos' %}">Volver a la lista</a>
     </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <img src="https://i.pinimg.com/736x/93/4c/81/934c814c900a28e41fa02d8dc489ed75.jpg" alt="Error" />
+            <p>Por favor, completa los campos requeridos: Título y al menos una imagen.</p>
+            <button onclick="closeModal()">Ok</button>
+        </div>
+    </div>
+    
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -309,33 +361,22 @@
         });
     </script> 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const imagenesInput = document.getElementById("imagenes");
-        const form = document.querySelector("form");
-        const previewContainer = document.getElementById("preview-container");
-        const errorContainer = document.getElementById("image-error");
-    
-        let imagenesValidas = true;
-    
-        imagenesInput.addEventListener("change", function (event) {
-            errorContainer.style.display = "none";
-            imagenesValidas = true;
-    
-            const files = Array.from(event.target.files);
-            const allowedExtensions = ['jpg', 'jpeg', 'png'];
-            const MAX_SIZE_MB = 5 * 1024 * 1024;
-    
-            files.forEach((file) => {
-                const reader = new FileReader();
+    document.getElementById('id_fotos').addEventListener('change', function(event) {
+        var allowedExtensions = ['jpg', 'jpeg', 'png'];
+        var files = event.target.files;
+        var previewContainer = document.getElementById('preview-container');
+        previewContainer.innerHTML = '';
 
-                reader.onload = function (e) {
-                    // Verificar si ya existe una imagen con el mismo src para evitar duplicados
-                    const existing = Array.from(previewContainer.querySelectorAll("img")).some(
-                        img => img.src === e.target.result
-                    );
-                    if (existing) return;
-
-                    const img = document.createElement("img");
+        var validFiles = [];
+        Array.from(files).forEach(file => {
+            var ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(ext)) {
+                alert("Solo se permiten imágenes en formato JPG y PNG.");
+            } else {
+                validFiles.push(file);
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = document.createElement('img');
                     img.src = e.target.result;
 
                     // Mecanismo de doble clic para eliminar
@@ -383,6 +424,6 @@
             }
         });
     });
-    </script>    
+</script>
 </body>
 </html>
