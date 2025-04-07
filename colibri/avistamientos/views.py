@@ -43,14 +43,23 @@ def listar_avistamientos(request):
 def agregar_avistamiento(request):
     if request.method == 'POST':
         form = AvistamientoForm(request.POST)
-        
-        imagenes_validas = []
-        errores_imagenes = False  # <- Bandera para saber si hubo algún error
+        imagenes = request.FILES.getlist('imagenes')
 
-        for file in request.FILES.getlist('imagenes'):
-            imagen_form = ImagenAvistamientoForm({'avistamiento': 0}, {'imagen': file})  # avistamiento se ignora
+        # Verificación de cantidad de imágenes
+        if len(imagenes) > 10:
+            messages.error(request, "⚠️ No puedes subir más de 10 imágenes.")
+            return render(request, 'avistamientos/agregar.html', {
+                'form': form,
+                'imagenes_form': ImagenAvistamientoForm()
+            })
+
+        imagenes_validas = []
+        errores_imagenes = False
+
+        for file in imagenes:
+            imagen_form = ImagenAvistamientoForm({'avistamiento': 0}, {'imagen': file})
             if imagen_form.is_valid():
-                imagenes_validas.append(file)
+                imagenes_validas.append(imagen_form.cleaned_data['imagen'])
             else:
                 errores_imagenes = True
                 messages.error(request, f"Formato no permitido: {file.name}")
@@ -61,7 +70,6 @@ def agregar_avistamiento(request):
             avistamiento.publicado = False
             avistamiento.save()
 
-            # Guardar las imágenes válidas
             for img in imagenes_validas:
                 ImagenAvistamiento.objects.create(avistamiento=avistamiento, imagen=img)
 
@@ -70,12 +78,14 @@ def agregar_avistamiento(request):
         else:
             if not imagenes_validas:
                 messages.error(request, "Debes subir al menos una imagen válida.")
-
     else:
         form = AvistamientoForm()
-        imagenes_form = ImagenAvistamientoForm()
 
-    return render(request, 'avistamientos/agregar.html', {'form': form, 'imagenes_form': imagenes_form})
+    return render(request, 'avistamientos/agregar.html', {
+        'form': form,
+        'imagenes_form': ImagenAvistamientoForm()
+    })
+
 
 
 
