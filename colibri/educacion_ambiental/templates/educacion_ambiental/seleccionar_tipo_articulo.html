@@ -1,0 +1,176 @@
+<!-- filepath: c:\Users\User\Desktop\Colibri_project\colibri\educacion_ambiental\templates\educacion_ambiental\seleccionar_tipo_articulo.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Tipo de Artículo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2F4F2F;
+            color: #F5F5DC;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 30px; /* Reducido de 50px */
+            position: relative;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px; /* Reducido de 30px */
+            text-align: center;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0 10px 0; /* Reducido de 40px 0 20px 0 */
+        }
+        .header img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px; /* Reducido de 20px */
+        }
+        .category-card {
+            background-color: #4A7C59;
+            color: #F5F5DC;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .category-card:hover {
+            background-color: #3E5C3E;
+            transform: translateY(-10px);
+        }
+        .category-card h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .btn-select {
+            background-color: #4A6653;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #F5F5DC;
+            margin-top: 20px;
+        }
+        .btn-select:hover {
+            background-color: #9BCF35;
+            color: #061709;
+            transform: scale(1.05);
+        }
+        .home-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4A6653;
+            color: #F5F5DC;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .home-button:hover {
+            background-color: #9BCF35;
+            color: #061709;
+        }
+        .category-grid {
+            margin-top: 10px; /* Reducido de 40px */
+        }
+        /* Reducir espacio entre párrafo y grid */
+        .header p {
+            margin-bottom: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón para volver atrás -->
+    <a href="javascript:history.back()" class="home-button">← Cambiar de Región</a>
+
+    <!-- Encabezado con imagen y título -->
+    <div class="header">
+        <img src="/media/educacion_ambiental/planta.png" alt="Educación Ambiental">
+        <h1>Seleccionar Categoría</h1>
+        <p class="lead text-center mb-3">Región seleccionada: <strong>{{ region|title }}</strong> - Elige una categoría para explorar</p>
+    </div>
+
+    <!-- Grid de categorías -->
+    <div class="container">
+        <div class="row category-grid g-4">
+            <!-- Flora -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="category-card">
+                    <div>
+                        <h2>Flora</h2>
+                        <p class="lead">Descubre la diversidad de plantas y vegetación característica de la región {{ region|title }}.</p>
+                    </div>
+                    <a href="{% url 'articulos_por_categoria' 'flora' %}" class="btn btn-select w-100">Ver artículos de Flora</a>
+                </div>
+            </div>
+            
+            <!-- Fauna -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="category-card">
+                    <div>
+                        <h2>Fauna</h2>
+                        <p class="lead">Explora las diferentes especies animales que habitan en la región {{ region|title }}.</p>
+                    </div>
+                    <a href="{% url 'articulos_por_categoria' 'fauna' %}" class="btn btn-select w-100">Ver artículos de Fauna</a>
+                </div>
+            </div>
+            
+            <!-- Especies en Peligro -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="category-card">
+                    <div>
+                        <h2>Especies en Peligro</h2>
+                        <p class="lead">Conoce las especies amenazadas que requieren protección en la región {{ region|title }}.</p>
+                    </div>
+                    <a href="{% url 'articulos_por_categoria' 'especies_en_peligro' %}" class="btn btn-select w-100">Ver Especies en Peligro</a>
+                </div>
+            </div>
+            
+            <!-- Conservación -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="category-card">
+                    <div>
+                        <h2>Conservación</h2>
+                        <p class="lead">Infórmate sobre las iniciativas de conservación ambiental en la región {{ region|title }}.</p>
+                    </div>
+                    <a href="{% url 'articulos_por_categoria' 'conservacion' %}" class="btn btn-select w-100">Ver artículos de Conservación</a>
+                </div>
+            </div>
+            
+            <!-- Prácticas Sostenibles -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="category-card">
+                    <div>
+                        <h2>Prácticas Sostenibles</h2>
+                        <p class="lead">Aprende sobre métodos y prácticas para contribuir a la sostenibilidad en la región {{ region|title }}.</p>
+                    </div>
+                    <a href="{% url 'articulos_por_categoria' 'practicas_sostenibles' %}" class="btn btn-select w-100">Ver Prácticas Sostenibles</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer con menos padding -->
+    <footer class="py-3 bg-dark mt-3">
+        <div class="container">
+            <p class="m-0 text-center text-white">Copyright &copy; Colibri 2025</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
