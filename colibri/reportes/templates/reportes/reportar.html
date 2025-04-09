@@ -3,6 +3,12 @@
 {% block title %}Reportar Caso{% endblock %}
 {% block content %}
 <style>
+        /* Estilos existentes... */
+        .file-count {
+        font-size: 0.8em;
+        color: #666;
+        margin-top: 5px;
+    }
     form div {
         display: flex;
         flex-direction: column;
@@ -20,12 +26,18 @@
         border-radius: 5px;
     }
     
+    /* ... otros estilos ... */
     .error-message {
         color: red;
         font-size: 0.8em;
         margin-top: 5px;
-        display: none;
+        display: none; /* Mantenemos none por defecto */
     }
+    
+    /* Esta clase mostrará el error */
+    .error-visible {
+        display: block !important;
+    } /* Faltaba cerrar esta llave */
     
     .file-info {
         font-size: 0.8em;
@@ -50,26 +62,46 @@
         {{ form.descripcion.label_tag }}
         {{ form.descripcion }}
     </div>
-
     <div>
-        <label for="id_imagen">Subir Imagen (solo JPG, PNG, máximo 5MB):</label>
-        <input type="file" name="imagen" id="id_imagen" accept="image/jpeg, image/png">
-        <div id="imagen-error" class="error-message"></div>
+        <label for="id_imagen">Subir Imagen (solo JPG, PNG, máximo 5MB, máximo 10 archivos):</label>
+        <input type="file" name="imagen" id="id_imagen" accept="image/jpeg, image/png" multiple>
+        {% if form.imagen.errors %}
+            <div class="error-message error-visible">
+                {% for error in form.imagen.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
         <div id="imagen-info" class="file-info"></div>
+        <div id="imagen-count" class="file-count"></div>
     </div>
-
+    
     <div>
-        <label for="id_video">Subir Video (solo MP4, MOV, máximo 50MB):</label>
-        <input type="file" name="video" id="id_video" accept="video/mp4, video/quicktime">
-        <div id="video-error" class="error-message"></div>
+        <label for="id_video">Subir Video (solo MP4, MOV, máximo 50MB, máximo 2 archivos):</label>
+        <input type="file" name="video" id="id_video" accept="video/mp4, video/quicktime" multiple>
+        {% if form.video.errors %}
+            <div class="error-message error-visible">
+                {% for error in form.video.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
         <div id="video-info" class="file-info"></div>
+        <div id="video-count" class="file-count"></div>
     </div>
-
+    
     <div>
-        <label for="id_audio">Subir Audio (solo MP3, WAV, máximo 20MB):</label>
-        <input type="file" name="audio" id="id_audio" accept="audio/mpeg, audio/wav">
-        <div id="audio-error" class="error-message"></div>
+        <label for="id_audio">Subir Audio (solo MP3, WAV, máximo 20MB, máximo 2 archivos):</label>
+        <input type="file" name="audio" id="id_audio" accept="audio/mpeg, audio/wav" multiple>
+        {% if form.audio.errors %}
+            <div class="error-message error-visible">
+                {% for error in form.audio.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
         <div id="audio-info" class="file-info"></div>
+        <div id="audio-count" class="file-count"></div>
     </div>
 
     <div>
@@ -111,6 +143,10 @@
     }
     
     map.on('click', onMapClick);
+    // Límites de cantidad de archivos
+    const MAX_IMAGES = 10;
+    const MAX_VIDEOS = 2;
+    const MAX_AUDIOS = 2;
 
     // Límites de tamaño en bytes
     const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -126,125 +162,140 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // Validación para imagen
-    document.getElementById('id_imagen').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const errorElement = document.getElementById('imagen-error');
-        const infoElement = document.getElementById('imagen-info');
+    // Función para validar cantidad de archivos
+    function validateFileCount(input, maxFiles, typeName) {
+        const files = input.files;
+        const errorElement = document.getElementById(`${input.id}-error`);
+        const countElement = document.getElementById(`${input.id}-count`);
         
-        if (file) {
-            infoElement.textContent = `Tamaño: ${formatFileSize(file.size)}`;
-            
-            const validExtensions = ['image/jpeg', 'image/png'];
-            if (!validExtensions.includes(file.type)) {
-                errorElement.textContent = 'Solo se permiten archivos JPG o PNG';
-                errorElement.style.display = 'block';
-                e.target.value = '';
-                infoElement.textContent = '';
-            } else if (file.size > MAX_IMAGE_SIZE) {
-                errorElement.textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_IMAGE_SIZE)})`;
-                errorElement.style.display = 'block';
-                e.target.value = '';
-                infoElement.textContent = '';
-            } else {
-                errorElement.style.display = 'none';
-            }
+        if (files.length > maxFiles) {
+            errorElement.textContent = `No puedes subir más de ${maxFiles} ${typeName}.`;
+            errorElement.classList.add('error-visible');
+            input.value = '';
+            countElement.textContent = '';
+            return false;
         } else {
-            infoElement.textContent = '';
+            errorElement.classList.remove('error-visible');
+            countElement.textContent = files.length > 0 ? `Archivos seleccionados: ${files.length}/${maxFiles}` : '';
+            return true;
         }
-    });
+    }
+        // Validación para imagen
+        document.getElementById('id_imagen').addEventListener('change', function(e) {
+            const errorElement = document.getElementById('imagen-error');
+            const infoElement = document.getElementById('imagen-info');
+            
+            if (!validateFileCount(e.target, MAX_IMAGES, 'imágenes')) return;
+            
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                infoElement.textContent = `Tamaño: ${formatFileSize(file.size)}`;
+                
+                const validExtensions = ['image/jpeg', 'image/png'];
+                if (!validExtensions.includes(file.type)) {
+                    errorElement.textContent = 'Solo se permiten archivos JPG o PNG';
+                    errorElement.classList.add('error-visible');
+                    e.target.value = '';
+                    infoElement.textContent = '';
+                } else if (file.size > MAX_IMAGE_SIZE) {
+                    errorElement.textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_IMAGE_SIZE)})`;
+                    errorElement.classList.add('error-visible');
+                    e.target.value = '';
+                    infoElement.textContent = '';
+                } else {
+                    errorElement.classList.remove('error-visible');
+                }
+            } else {
+                infoElement.textContent = '';
+                errorElement.classList.remove('error-visible');
+            }
+        });
 
     // Validación para video
     document.getElementById('id_video').addEventListener('change', function(e) {
         const file = e.target.files[0];
         const errorElement = document.getElementById('video-error');
         const infoElement = document.getElementById('video-info');
+        if (!validateFileCount(e.target, MAX_VIDEOS, 'videos')) return;
         
-        if (file) {
-            infoElement.textContent = `Tamaño: ${formatFileSize(file.size)}`;
-            
-            const validExtensions = ['video/mp4', 'video/quicktime'];
-            if (!validExtensions.includes(file.type)) {
-                errorElement.textContent = 'Solo se permiten archivos MP4 o MOV';
-                errorElement.style.display = 'block';
-                e.target.value = '';
-                infoElement.textContent = '';
-            } else if (file.size > MAX_VIDEO_SIZE) {
-                errorElement.textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_VIDEO_SIZE)})`;
-                errorElement.style.display = 'block';
-                e.target.value = '';
-                infoElement.textContent = '';
+        if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                infoElement.textContent = `Tamaño: ${formatFileSize(file.size)}`;
+                
+                const validExtensions = ['video/mp4', 'video/MOV'];
+                if (!validExtensions.includes(file.type)) {
+                    errorElement.textContent = 'Solo se permiten archivos mp4 o MOV';
+                    errorElement.classList.add('error-visible');
+                    e.target.value = '';
+                    infoElement.textContent = '';
+                } else if (file.size > MAX_VIDEO_SIZE) {
+                    errorElement.textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_VIDEO_SIZE)})`;
+                    errorElement.classList.add('error-visible');
+                    e.target.value = '';
+                    infoElement.textContent = '';
+                } else {
+                    errorElement.classList.remove('error-visible');
+                }
             } else {
-                errorElement.style.display = 'none';
+                infoElement.textContent = '';
+                errorElement.classList.remove('error-visible');
             }
-        } else {
-            infoElement.textContent = '';
-        }
-    });
+        });
 
     // Validación para audio
     document.getElementById('id_audio').addEventListener('change', function(e) {
         const file = e.target.files[0];
         const errorElement = document.getElementById('audio-error');
         const infoElement = document.getElementById('audio-info');
+        if (!validateFileCount(e.target, MAX_AUDIOS, 'audios')) return;
         
-        if (file) {
-            infoElement.textContent = `Tamaño: ${formatFileSize(file.size)}`;
-            
-            const validExtensions = ['audio/mpeg', 'audio/wav'];
-            if (!validExtensions.includes(file.type)) {
-                errorElement.textContent = 'Solo se permiten archivos MP3 o WAV';
-                errorElement.style.display = 'block';
-                e.target.value = '';
-                infoElement.textContent = '';
-            } else if (file.size > MAX_AUDIO_SIZE) {
-                errorElement.textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_AUDIO_SIZE)})`;
-                errorElement.style.display = 'block';
-                e.target.value = '';
-                infoElement.textContent = '';
+        if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                infoElement.textContent = `Tamaño: ${formatFileSize(file.size)}`;
+                
+                const validExtensions = ['audio/mp3', 'audio/wav'];
+                if (!validExtensions.includes(file.type)) {
+                    errorElement.textContent = 'Solo se permiten archivos mp3 o WAV';
+                    errorElement.classList.add('error-visible');
+                    e.target.value = '';
+                    infoElement.textContent = '';
+                } else if (file.size > MAX_AUDIO_SIZE) {
+                    errorElement.textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_AUDIO_SIZE)})`;
+                    errorElement.classList.add('error-visible');
+                    e.target.value = '';
+                    infoElement.textContent = '';
+                } else {
+                    errorElement.classList.remove('error-visible');
+                }
             } else {
-                errorElement.style.display = 'none';
+                infoElement.textContent = '';
+                errorElement.classList.remove('error-visible');
             }
-        } else {
-            infoElement.textContent = '';
-        }
-    });
+        });
 
     // Validación al enviar el formulario
+// Modifica la validación del formulario para prevenir envío si hay errores
     document.getElementById('reporteForm').addEventListener('submit', function(e) {
         let isValid = true;
         
-        // Validar imagen
+        // Validar cantidad de imágenes
         const imagenInput = document.getElementById('id_imagen');
-        if (imagenInput.files.length > 0) {
-            const file = imagenInput.files[0];
-            if (file.size > MAX_IMAGE_SIZE) {
-                document.getElementById('imagen-error').textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_IMAGE_SIZE)})`;
-                document.getElementById('imagen-error').style.display = 'block';
-                isValid = false;
-            }
+        if (imagenInput.files.length === 0) {
+            isValid = false;
+        } else if (imagenInput.files.length > 10) {
+            isValid = false;
         }
         
-        // Validar video
+        // Validar cantidad de videos
         const videoInput = document.getElementById('id_video');
-        if (videoInput.files.length > 0) {
-            const file = videoInput.files[0];
-            if (file.size > MAX_VIDEO_SIZE) {
-                document.getElementById('video-error').textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_VIDEO_SIZE)})`;
-                document.getElementById('video-error').style.display = 'block';
-                isValid = false;
-            }
+        if (videoInput.files.length > 2) {
+            isValid = false;
         }
         
-        // Validar audio
+        // Validar cantidad de audios
         const audioInput = document.getElementById('id_audio');
-        if (audioInput.files.length > 0) {
-            const file = audioInput.files[0];
-            if (file.size > MAX_AUDIO_SIZE) {
-                document.getElementById('audio-error').textContent = `El archivo es demasiado grande (máximo ${formatFileSize(MAX_AUDIO_SIZE)})`;
-                document.getElementById('audio-error').style.display = 'block';
-                isValid = false;
-            }
+        if (audioInput.files.length > 2) {
+            isValid = false;
         }
         
         if (!isValid) {

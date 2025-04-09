@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import FileExtensionValidator, MaxValueValidator
+from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 def validate_image_size(value):
     limit = 5 * 1024 * 1024  # 5MB
@@ -35,8 +36,8 @@ class Reporte(models.Model):
 
     imagen = models.ImageField(
         upload_to='reportes/imagenes/', 
-        blank=True, 
-        null=True,
+        blank=False, 
+        null=False,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']),
             validate_image_size
@@ -65,4 +66,8 @@ class Reporte(models.Model):
     
     def __str__(self):
         return f"Reporte {self.id} - {self.tipo_reporte.nombre}"
+
+    def clean(self):
+        super().clean()
+        # Validación de cantidad de archivos se hará en el formulario
 

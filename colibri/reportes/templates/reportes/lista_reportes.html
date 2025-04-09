@@ -1,8 +1,9 @@
 {% extends 'reportes/base.html' %}
 
 {% block content %}
-<h2>Lista de Reportes</h2>
+<h2>Mis Reportes</h2>
 
+{% if reportes %}
 <table border="1">
     <tr>
         <th>ID</th>
@@ -16,7 +17,7 @@
     <tr>
         <td>{{ reporte.id }}</td>
         <td>{{ reporte.descripcion }}</td>
-        <td>{{ reporte.fecha }}</td>
+        <td>{{ reporte.fecha_reporte }}</td>
         <td>
             {% if reporte.imagen %}
                 <img src="{{ reporte.imagen.url }}" width="100">
@@ -44,5 +45,9 @@
     </tr>
     {% endfor %}
 </table>
+{% else %}
+<p>No has creado ningún reporte todavía.</p>
+<a href="{% url 'reportar_maltrato' %}" class="btn">Crear mi primer reporte</a>
+{% endif %}
 
 {% endblock %}

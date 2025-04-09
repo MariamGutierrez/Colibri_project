@@ -14,7 +14,7 @@ def enviar_reporte_por_correo(reporte):
     Longitud: {reporte.longitud}
     Fecha: {reporte.fecha_reporte}
     """
-    destinatarios = ['vakogay710@bariswc.com']  # puedes usar una lista de admins
+    destinatarios = ['vakogay710@bariswc.com']
 
     send_mail(
         asunto,
