@@ -24,7 +24,10 @@ def login_view(request):
 
         if user and user.check_password(password):
             login(request, user)
-            return redirect("inicio")  
+            if user.is_staff or user.is_superuser:
+                return redirect("/admin/")
+            else:
+                return redirect("inicio")
         else:
             messages.error(request, "Usuario o contraseña incorrectos.")
     
