@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from .models import Avistamiento
-from .models import ImagenAvistamiento
+from .models import Avistamiento, EliminacionParcialAvistamiento, ImagenAvistamiento
 from django.shortcuts import render, redirect
 import json
 from .forms import AvistamientoForm, ImagenAvistamientoForm
@@ -91,3 +90,11 @@ def agregar_avistamiento(request):
 
 def inicio(request):
     return render(request, 'layouts/home.html')
+
+def eliminar_avistamiento(request, avistamiento_id):
+    avistamiento = Avistamiento.objects.get(id=avistamiento_id)
+    if request.method == "POST":
+        EliminacionParcialAvistamiento.objects.create(titulo=avistamiento.titulo)
+        messages.error(request, f"Tu avistamiento '{avistamiento.titulo}' ha sido rechazado. Esta notificación se eliminará después de 4 días hábiles.")
+        avistamiento.delete()
+        return redirect('listar_avistamientos')

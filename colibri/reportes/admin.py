@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import TipoReporte, Reporte
+from .models import TipoReporte, Reporte, EliminacionParcialReporte
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
@@ -48,6 +48,21 @@ class ReporteAdmin(admin.ModelAdmin):
     )
     actions = [enviar_alerta_por_correo]
 
+    def delete_model(self, request, obj):
+        # Guarda un registro en EliminacionParcialReporte antes de eliminar
+        EliminacionParcialReporte.objects.create(
+            titulo=obj.titulo,
+        )
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        # Maneja la eliminación de múltiples objetos
+        for obj in queryset:
+            EliminacionParcialReporte.objects.create(
+                titulo=obj.titulo,
+            )
+        queryset.delete()
+
     def preview_imagen(self, obj):
         if obj.imagen:
             return format_html('<img src="{}" style="max-width: 300px; max-height: 300px;" />', obj.imagen.url)
@@ -70,4 +85,8 @@ class ReporteAdmin(admin.ModelAdmin):
         return "No hay audio"
 
 admin.site.register(Reporte, ReporteAdmin)
-admin.site.register(TipoReporte)
+
+@admin.register(EliminacionParcialReporte)
+class EliminacionParcialAvistamientoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'fecha_eliminacion', 'fecha_expiracion')
+    search_fields = ('titulo',)
