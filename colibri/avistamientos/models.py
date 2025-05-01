@@ -60,7 +60,7 @@ def save(self, *args, **kwargs):
         super().save(update_fields=["nombre"])  # Guarda solo el campo nombre
 
 class EliminacionParcialAvistamiento(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Relación con el usuario
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="eliminaciones_avistamientos")
     titulo = models.CharField(max_length=255)  # El título será el mismo que el del avistamiento eliminado
     mensaje = models.TextField(blank=True, null=True)  # Mensaje del administrador
     fecha_eliminacion = models.DateTimeField(auto_now_add=True)

@@ -9,6 +9,7 @@ urlpatterns = [
     path('enviar_alerta/<int:reporte_id>/', views.enviar_alerta, name='enviar_alerta'),
     path('ver_cuenta/', views.ver_cuenta, name='ver_cuenta'),
     path('eliminar_reporte/<int:reporte_id>/', views.eliminar_reporte, name='eliminar_reporte'),
+    path('avistamiento/<int:pk>/', views.detalle_avistamiento, name='detalle_avistamiento'),
 ]
 
 if settings.DEBUG:

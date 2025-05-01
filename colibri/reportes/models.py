@@ -38,8 +38,10 @@ class Reporte(models.Model):
     def __str__(self):
         return f"Reporte {self.id} - {self.tipo_reporte.nombre}"
 
-class EliminacionParcialReporte(models.Model):
-    titulo = models.CharField(max_length=255, default="Título por defecto")
+class EliminacionParcialAvistamiento(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="eliminaciones_reportes")
+    titulo = models.CharField(max_length=255)
+    mensaje = models.TextField(default="No se especificó el motivo")  # <--- Agregado
     fecha_eliminacion = models.DateTimeField(auto_now_add=True)
     fecha_expiracion = models.DateTimeField()
 
@@ -49,13 +51,11 @@ class EliminacionParcialReporte(models.Model):
         fecha_actual = now().date()
         while dias_habiles < 4:
             fecha_actual += timedelta(days=1)
-            if fecha_actual.weekday() < 5:  # Lunes a Viernes son días hábiles
+            if fecha_actual.weekday() < 5:
                 dias_habiles += 1
         self.fecha_expiracion = fecha_actual
         super().save(*args, **kwargs)
 
     def dias_restantes(self):
-        # Calcula los días restantes dinámicamente
         hoy = date.today()
-        dias_restantes = (self.fecha_expiracion.date() - hoy).days
-        return max(dias_restantes, 0)
+        return max((self.fecha_expiracion.date() - hoy).days, 0)
