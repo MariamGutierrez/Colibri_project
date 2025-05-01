@@ -63,19 +63,21 @@
             height: 300px;
             border-radius: 8px;
         }
-        .preview-container {
+        #preview-container {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
-        .preview-container img {
-            width: 80px;
-            height: 80px;
+
+        #preview-container img {
+            max-width: 100px;
+            height: auto;
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid #F5F5DC;
         }
+
         a {
             display: block;
             margin-top: 20px;
@@ -85,6 +87,48 @@
         }
         a:hover {
             text-decoration: underline;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+        }
+        .modal img {
+            width: 50%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+        
+        .modal button {
+            margin-top: 20px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            color: black;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: red;
         }
     </style>
 </head>
@@ -123,59 +167,82 @@
 
             
             <label for="id_fotos">Fotos:</label>
-            <input type="file" name="imagenes" id="imagenes" multiple accept="image/png, image/jpeg">
+            <input type="file" name="imagenes" id="imagenes" multiple accept="image/png, image/jpeg" data-max-files="10">
             <div id="preview-container"></div>
+            <div id="image-error" style="display:none; color: white; background: red; padding: 8px; border-radius: 5px;"></div>
             
             <script>
-            document.getElementById("imagenes").addEventListener("change", function(event) {
-                let container = document.getElementById("preview-container");
-                container.innerHTML = "";  // Borra la vista previa anterior
-                const MAX_SIZE_MB = 5 * 1024 * 1024; // 5MB en bytes
-            
-                Array.from(event.target.files).forEach(file => {
-                    let ext = file.name.split('.').pop().toLowerCase();
-                    let img = document.createElement("img");
-                    img.style.width = "100px";
-                    img.style.margin = "5px";
-            
-                    if (file.size > MAX_SIZE_MB) { 
-                        let sizeError = document.createElement("div");
-                        sizeError.textContent = "Archivo demasiado grande (+5MB)";
-                        sizeError.style.color = "white";
-                        sizeError.style.background = "red";
-                        sizeError.style.padding = "5px";
-                        sizeError.style.width = "150px";
-                        sizeError.style.textAlign = "center";
-                        sizeError.style.margin = "5px";
-            
-                        container.appendChild(sizeError);
+                document.getElementById("imagenes").addEventListener("change", function(event) {
+                    let container = document.getElementById("preview-container");
+                    let errorElement = document.getElementById("image-error");
+                    container.innerHTML = "";  // Borra la vista previa anterior
+                    errorElement.style.display = "none";
+                    const MAX_SIZE_MB = 5 * 1024 * 1024; // 5MB en bytes
+                    const MAX_FILES = 10;
+                
+                    // Verificar cantidad de archivos
+                    if (event.target.files.length > MAX_FILES) {
+                        errorElement.textContent = `⚠️ No puedes subir más de ${MAX_FILES} imágenes.`;
+                        errorElement.style.display = "block";
+                        event.target.value = ""; // Limpiar el input
                         return;
                     }
-            
-                    if (['jpg', 'jpeg', 'png'].includes(ext)) {  
-                        let reader = new FileReader();
-                        reader.onload = function(e) {
-                            img.src = e.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        let invalidMessage = document.createElement("div");
-                        invalidMessage.textContent = "Imagen inválida";
-                        invalidMessage.style.color = "white";
-                        invalidMessage.style.background = "red";
-                        invalidMessage.style.padding = "5px";
-                        invalidMessage.style.width = "100px";
-                        invalidMessage.style.textAlign = "center";
-                        invalidMessage.style.margin = "5px";
-            
-                        container.appendChild(invalidMessage);
-                        return;
-                    }
-            
-                    container.appendChild(img);
+                
+                    Array.from(event.target.files).forEach(file => {
+                        let ext = file.name.split('.').pop().toLowerCase();
+                        let img = document.createElement("img");
+                        img.style.width = "100px";
+                        img.style.margin = "5px";
+                
+                        if (file.size > MAX_SIZE_MB) { 
+                            let sizeError = document.createElement("div");
+                            sizeError.textContent = "Archivo demasiado grande (+5MB)";
+                            sizeError.style.color = "white";
+                            sizeError.style.background = "red";
+                            sizeError.style.padding = "5px";
+                            sizeError.style.width = "150px";
+                            sizeError.style.textAlign = "center";
+                            sizeError.style.margin = "5px";
+                
+                            container.appendChild(sizeError);
+                            return;
+                        }
+                
+                        if (['jpg', 'jpeg', 'png'].includes(ext)) {  
+                            let reader = new FileReader();
+                            reader.onload = function(e) {
+                                img.src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            let invalidMessage = document.createElement("div");
+                            invalidMessage.textContent = "Imagen inválida";
+                            invalidMessage.style.color = "white";
+                            invalidMessage.style.background = "red";
+                            invalidMessage.style.padding = "5px";
+                            invalidMessage.style.width = "100px";
+                            invalidMessage.style.textAlign = "center";
+                            invalidMessage.style.margin = "5px";
+                
+                            container.appendChild(invalidMessage);
+                            return;
+                        }
+                
+                        container.appendChild(img);
+                    });
                 });
-            });
-            </script>
+                
+                // Validación al enviar el formulario
+                document.querySelector("form").addEventListener("submit", function(e) {
+                    const fileInput = document.getElementById("imagenes");
+                    if (fileInput.files.length > 10) {
+                        e.preventDefault();
+                        const errorElement = document.getElementById("image-error");
+                        errorElement.textContent = "⚠️ No puedes subir más de 10 imágenes.";
+                        errorElement.style.display = "block";
+                    }
+                });
+                </script>
              
             
             <label for="id_latitud">Latitud:</label>
@@ -189,11 +256,21 @@
             
             <label for="map">Selecciona la ubicación:</label>
             <div id="map"></div>
-            
+            <div id="image-error" style="display:none; color: white; background: red; padding: 8px; border-radius: 5px;"></div>
             <button type="submit">Guardar</button>
         </form>
         <a href="{% url 'listar_avistamientos' %}">Volver a la lista</a>
     </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <img src="https://i.pinimg.com/736x/93/4c/81/934c814c900a28e41fa02d8dc489ed75.jpg" alt="Error" />
+            <p>Por favor, completa los campos requeridos: Título y al menos una imagen.</p>
+            <button onclick="closeModal()">Ok</button>
+        </div>
+    </div>
+    
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -307,35 +384,88 @@
         });
     </script> 
 <script>
-    document.getElementById('id_fotos').addEventListener('change', function(event) {
-        var allowedExtensions = ['jpg', 'jpeg', 'png'];
-        var files = event.target.files;
-        var previewContainer = document.getElementById('preview-container');
-        previewContainer.innerHTML = '';
-
-        var validFiles = [];
-        Array.from(files).forEach(file => {
-            var ext = file.name.split('.').pop().toLowerCase();
-            if (!allowedExtensions.includes(ext)) {
-                alert("Solo se permiten imágenes en formato JPG y PNG.");
-            } else {
-                validFiles.push(file);
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var img = document.createElement('img');
-                    img.src = e.target.result;
-                    previewContainer.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.getElementById('id_fotos');
+        const previewContainer = document.getElementById('preview-container');
+        const errorContainer = document.getElementById('error-container'); // Asegúrate de tener este div en tu HTML
+        let validFiles = [];
+    
+        fileInput.addEventListener('change', function (event) {
+            const allowedExtensions = ['jpg', 'jpeg', 'png'];
+            const files = Array.from(event.target.files);
+            previewContainer.innerHTML = '';
+            errorContainer.innerHTML = '';
+            validFiles = [];
+    
+            if (files.length > 10) {
+                errorContainer.textContent = "⚠️ No puedes subir más de 10 imágenes.";
+                errorContainer.style.display = "block";
+                fileInput.value = "";
+                return;
+            }
+    
+            files.forEach(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(ext)) {
+                    errorContainer.textContent = "⚠️ Solo se permiten imágenes en formato JPG y PNG.";
+                    errorContainer.style.display = "block";
+                } else {
+                    validFiles.push(file);
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.border = "2px solid #F5F5DC";
+                        img.style.margin = "5px";
+                        img.style.maxWidth = "150px";
+                        img.style.cursor = "pointer";
+    
+                        // Mecanismo de doble clic para eliminar
+                        let clickTimeout;
+                        img.dataset.deleteConfirm = "false";
+    
+                        img.addEventListener("click", function () {
+                            if (img.dataset.deleteConfirm === "true") {
+                                img.remove();
+                            } else {
+                                img.dataset.deleteConfirm = "true";
+                                img.style.border = "2px dashed red";
+                                img.title = "Haz clic de nuevo para eliminar esta imagen";
+    
+                                clearTimeout(clickTimeout);
+                                clickTimeout = setTimeout(() => {
+                                    img.dataset.deleteConfirm = "false";
+                                    img.style.border = "2px solid #F5F5DC";
+                                    img.title = "";
+                                }, 1500);
+                            }
+                        });
+    
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+    
+            if (validFiles.length === 0) {
+                fileInput.value = "";
             }
         });
-
-        // Reemplaza los archivos con solo los válidos
-        if (validFiles.length < files.length) {
-            event.target.value = '';  // Borra la selección si hubo errores
-            event.target.files = new DataTransfer().files;  // Reinicia el input
-        }
+    
+        // Validación extra al enviar el formulario
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            if (validFiles.length === 0) {
+                e.preventDefault();
+                errorContainer.textContent = "⚠️ Debes subir al menos una imagen válida.";
+                errorContainer.style.display = "block";
+            } else if (validFiles.length > 10) {
+                e.preventDefault();
+                errorContainer.textContent = "⚠️ No puedes enviar más de 10 imágenes.";
+                errorContainer.style.display = "block";
+            }
+        });
     });
-</script>
+    </script>    
 </body>
 </html>
