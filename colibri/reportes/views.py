@@ -68,3 +68,15 @@ def detalle_avistamiento(request, pk):
         'avistamiento': avistamiento,
         'rechazo': rechazo
     })
+
+@login_required
+def eliminar_reporte(request, reporte_id):
+    reporte = get_object_or_404(Reporte, id=reporte_id, usuario=request.user)
+    EliminacionParcialAvistamiento.objects.create(
+        usuario=request.user,
+        titulo=reporte.titulo,
+        mensaje="Eliminado manualmente por el usuario."  # o un formulario para personalizar
+    )
+    reporte.delete()
+    messages.success(request, "Reporte eliminado correctamente.")
+    return redirect('ver_cuenta')

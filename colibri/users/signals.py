@@ -2,6 +2,9 @@ from django.apps import apps
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.contrib.admin.models import LogEntry
+from .models import Auditoria
 
 User = get_user_model()
 Animal = apps.get_model('users', 'Animal')  # Obtener el modelo dinámicamente
@@ -32,3 +35,8 @@ for codename, name in permissions:
     else:
         viewer_group.permissions.add(perm)
 
+def crear_auditoria(sender, instance, created, **kwargs):
+    if created and not Auditoria.objects.filter(log=instance).exists():
+        Auditoria.objects.create(log=instance, estado='revision')
+
+post_save.connect(crear_auditoria, sender=LogEntry)

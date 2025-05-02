@@ -63,3 +63,8 @@ admin.site.register(Reporte, ReporteAdmin)
 class EliminacionParcialAvistamientoAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'fecha_eliminacion', 'fecha_expiracion')
     search_fields = ('titulo',)
+
+@admin.register(TipoReporte)
+class TipoReporteAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
