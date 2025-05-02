@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     "users.middlewares.AdminSessionMiddleware",
+    'users.middlewares.ONGRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'colibri.urls'

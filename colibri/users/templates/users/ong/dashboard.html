@@ -1,0 +1,206 @@
+{% extends 'reportes/base.html' %}
+
+{% block title %}Colibri - Panel ONG{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-tachometer-alt me-2"></i> Panel de ONG</h1>
+        <span class="badge bg-success py-2 px-3">{{ user.perfil_ong.nombre_organizacion }}</span>
+    </div>
+
+    <!-- Tarjetas de información -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-file-alt me-2"></i> Total Reportes</h5>
+                    <p class="card-text display-4">{{ total_reportes }}</p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a href="{% url 'lista_reportes_ong' %}" class="text-white">Ver detalles</a>
+                    <span><i class="fas fa-angle-right"></i></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-exclamation-circle me-2"></i> Sin Atender</h5>
+                    <p class="card-text display-4">{{ reportes_sin_atender }}</p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a href="{% url 'lista_reportes_ong' %}?estado=sin_atender" class="text-dark">Ver reportes</a>
+                    <span><i class="fas fa-angle-right"></i></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-bell me-2"></i> Notificaciones</h5>
+                    <p class="card-text display-4">{{ notificaciones|length }}</p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a href="#" class="text-white" data-bs-toggle="modal" data-bs-target="#notificacionesModal">Ver notificaciones</a>
+                    <span><i class="fas fa-angle-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reportes recientes -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-table me-1"></i> Reportes Recientes
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Ubicación</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reporte in reportes_recientes %}
+                            <tr>
+                                <td>{{ reporte.tipo_reporte }}</td>
+                                <td>{{ reporte.descripcion|truncatechars:50 }}</td>
+                                <td>{{ reporte.ubicacion }}</td>
+                                <td>{{ reporte.fecha_reporte|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if reporte.en_atencion %}
+                                        <span class="badge bg-success">En atención</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Sin atender</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_reporte_ong' reporte.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay reportes recientes.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'lista_reportes_ong' %}" class="btn btn-primary">Ver todos los reportes</a>
+        </div>
+    </div>
+
+<!-- Dentro del bloque de Avistamientos relevantes, reemplaza la sección de la tabla por esto: -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <i class="fas fa-leaf me-1"></i> Avistamientos Relevantes
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Especie</th>
+                        <th>Tipo</th>
+                        <th>Estado de Conservación</th>
+                        <th>Fecha</th>
+                        <th>Ubicación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avistamiento in avistamientos_relevantes %}
+                        <tr>
+                            <td>{{ avistamiento.nombre }}</td>
+                            <td>
+                                {% if avistamiento.tipo_especie == 'fauna' %}
+                                    <span class="badge bg-info">Fauna</span>
+                                {% elif avistamiento.tipo_especie == 'flora' %}
+                                    <span class="badge bg-success">Flora</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if avistamiento.estado_conservacion == 'en_peligro' %}
+                                    <span class="badge bg-danger">En peligro</span>
+                                {% elif avistamiento.estado_conservacion == 'invasora' %}
+                                    <span class="badge bg-warning text-dark">Invasora</span>
+                                {% elif avistamiento.estado_conservacion == 'comun' %}
+                                    <span class="badge bg-secondary">Común</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ avistamiento.fecha_creacion|date:"d/m/Y" }}</td>
+                            <td>({{ avistamiento.latitud|floatformat:4 }}, {{ avistamiento.longitud|floatformat:4 }})</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No hay avistamientos relevantes.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal de notificaciones -->
+<div class="modal fade" id="notificacionesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Notificaciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    {% for notificacion in notificaciones %}
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ notificacion.titulo }}</h5>
+                                <small>{{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p class="mb-1">{{ notificacion.mensaje }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {% if notificacion.tipo == 'especie_peligro' %}
+                                        <span class="badge bg-danger">Especie en Peligro</span>
+                                    {% elif notificacion.tipo == 'especie_invasora' %}
+                                        <span class="badge bg-warning text-dark">Especie Invasora</span>
+                                    {% elif notificacion.tipo == 'reporte_maltrato' %}
+                                        <span class="badge bg-info">Reporte Maltrato</span>
+                                    {% endif %}
+                                </small>
+                                <div>
+                                    {% if notificacion.url_relacionada %}
+                                        <a href="{{ notificacion.url_relacionada }}" class="btn btn-sm btn-primary">Ver detalles</a>
+                                    {% endif %}
+                                    <a href="{% url 'marcar_notificacion_leida' notificacion.id %}" class="btn btn-sm btn-secondary">Marcar como leída</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-3">
+                            <p>No tienes notificaciones sin leer.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

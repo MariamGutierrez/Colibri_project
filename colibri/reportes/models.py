@@ -35,6 +35,17 @@ class Reporte(models.Model):
     ubicacion = models.CharField(max_length=255, blank=True, null=True)
     alerta_enviada = models.BooleanField(default=False)
 
+    # Campos nuevos para las ONGs
+    en_atencion = models.BooleanField(default=False)
+    atendido_por = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        related_name='reportes_atendidos',
+        null=True, 
+        blank=True
+    )
+    fecha_atencion = models.DateTimeField(null=True, blank=True)
+
     imagen = models.ImageField(
         upload_to='reportes/imagenes/', 
         blank=True, 

@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from .forms import RegistroVisitanteForm
+from .forms import RegistroVisitanteForm, RegistroONGForm
 from django.contrib import messages
 from .utils import UserDAO
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from django.conf import settings
+
+def registro_selector(request):
+    return render(request, 'users/registro_selector.html')
 
 def registro_visitante(request):
     if request.method == 'POST':
@@ -21,6 +24,18 @@ def registro_visitante(request):
     
     return render(request, 'users/registro_visitante.html', {'form': form})
 
+def registro_ong(request):
+    if request.method == 'POST':
+        form = RegistroONGForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard_ong')  # Redirigir al dashboard de ONGs
+    else:
+        form = RegistroONGForm()
+    
+    return render(request, 'users/registro_ong.html', {'form': form})
+
 def login_view(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -31,6 +46,8 @@ def login_view(request):
             login(request, user)
             if user.is_staff or user.is_superuser:
                 return redirect("/admin/")
+            elif user.groups.filter(name='ONGs').exists():
+                return redirect("dashboard_ong")  # Nueva URL para dashboard de ONGs
             else:
                 return redirect("inicio")
         else:
