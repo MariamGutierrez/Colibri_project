@@ -11,7 +11,8 @@ Animal = apps.get_model('users', 'Animal')  # Obtener el modelo dinámicamente
 admin_group, _ = Group.objects.get_or_create(name='Administradores')
 editor_group, _ = Group.objects.get_or_create(name='Editores')
 viewer_group, _ = Group.objects.get_or_create(name='Visitantes')
-
+ong_group, _ = Group.objects.get_or_create(name='ONGs')
+biologist_group, _ = Group.objects.get_or_create(name='Biologoa')
 # Definir permisos
 permissions = [
     ('add_animal', 'Puede agregar animales'),
