@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from .forms import RegistroVisitanteForm
 from django.contrib import messages
 from .utils import UserDAO
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Auditoria, MensajeAuditoria  # ajusta el import si están en otra app
+
 
 def registro_visitante(request):
     if request.method == 'POST':
@@ -29,3 +33,21 @@ def login_view(request):
             messages.error(request, "Usuario o contraseña incorrectos.")
     
     return render(request, "users/login.html")
+
+@login_required
+def responder_auditoria(request, pk):
+    auditoria = get_object_or_404(Auditoria, pk=pk)
+
+    if request.method == "POST":
+        MensajeAuditoria.objects.create(
+            auditoria=auditoria,
+            autor=request.user,
+            contenido=request.POST.get("mensaje")
+        )
+        return redirect('responder_auditoria', pk=pk)
+
+    mensajes = auditoria.mensajes.select_related('autor').order_by('timestamp')
+    return render(request, 'auditorias/chat.html', {
+        'auditoria': auditoria,
+        'mensajes': mensajes
+    })

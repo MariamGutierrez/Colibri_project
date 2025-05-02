@@ -1,0 +1,26 @@
+{% extends 'reportes/base.html' %}
+
+{% block content %}
+<h2>Chat de Auditoría</h2>
+
+<p><strong>Asunto:</strong> {{ auditoria.log.object_repr }}</p>
+
+<div style="border: 1px solid #ccc; padding: 10px; max-height: 300px; overflow-y: scroll; margin-bottom: 15px;">
+    {% for mensaje in mensajes %}
+        <div style="margin-bottom: 10px;">
+            <strong>{{ mensaje.autor.username }}</strong>
+            <small style="color: gray;">({{ mensaje.timestamp|date:"d/m/Y H:i" }})</small><br>
+            {{ mensaje.contenido }}
+        </div>
+    {% empty %}
+        <p>No hay mensajes aún.</p>
+    {% endfor %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <textarea name="mensaje" rows="3" class="form-control" placeholder="Escribe tu mensaje..."></textarea>
+    <button type="submit" class="btn btn-primary mt-2">Enviar</button>
+</form>
+{% endblock %}
+

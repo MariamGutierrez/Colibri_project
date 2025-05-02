@@ -16,6 +16,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LOGIN_URL = '/usuarios/login/'  # ← esta es la URL real de tu vista login
+LOGIN_REDIRECT_URL = '/usuarios/'  # o cualquier página útil post-login
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'avistamientos',
     'reportes',
     'educacion_ambiental',
+    'pqrs',
 ]
 
 MIDDLEWARE = [

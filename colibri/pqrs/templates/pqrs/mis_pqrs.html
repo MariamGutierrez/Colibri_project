@@ -1,0 +1,42 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Mis Solicitudes PQRS</h2>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+
+    <a href="{% url 'enviar_pqrs' %}" class="btn btn-success mb-3">
+        <i class="fas fa-plus-circle"></i> Nueva PQRS
+    </a>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Referencia</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Respuesta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pqrs %}
+                <tr>
+                    <td>{{ p.referencia }}</td>
+                    <td>{{ p.get_tipo_display }}</td>
+                    <td>{{ p.get_estado_display }}</td>
+                    <td>{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>{{ p.respuesta|default:"(Pendiente)" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No has enviado ninguna solicitud.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

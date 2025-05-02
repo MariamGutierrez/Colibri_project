@@ -28,6 +28,7 @@ urlpatterns = [
     path('educacion_ambiental/', include('educacion_ambiental.urls')),
     path('usuarios/', include('users.urls')),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('pqrs/', include('pqrs.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

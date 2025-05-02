@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import GroupAdmin
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
-from .models import Auditoria
+from .models import Auditoria, MensajeAuditoria
 from django.utils.html import format_html
 
 User = get_user_model()
@@ -32,6 +32,14 @@ admin.site.unregister(Group)  # Desregistra el modelo
 admin.site.register(Group, GroupAdmin)  # Lo vuelve a registrar
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Permission)
+
+
+
+
+class MensajeAuditoriaInline(admin.TabularInline):
+    model = MensajeAuditoria
+    extra = 0
+    readonly_fields = ('timestamp',)
 
 
 @admin.register(Auditoria)
@@ -70,4 +78,5 @@ class AuditoriaAdmin(admin.ModelAdmin):
             obj.log.user,
             obj.log.action_time
         )
+    inlines = [MensajeAuditoriaInline]
     mostrar_log.short_description = "Detalle del Log"
