@@ -65,7 +65,7 @@ ROOT_URLCONF = 'colibri.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / "templates"],  # Asegúrate de que esta ruta sea correcta
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
