@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     "users.middlewares.AdminSessionMiddleware",
     'users.middlewares.ONGRequiredMiddleware',
+    'users.middlewares.BiologoAdminMiddleware',
 ]
 
 ROOT_URLCONF = 'colibri.urls'

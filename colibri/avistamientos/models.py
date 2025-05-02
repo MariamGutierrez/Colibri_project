@@ -12,6 +12,19 @@ def validar_extension_imagen(value):
     ext = value.name.split('.')[-1].lower()
     if ext not in ['jpg', 'jpeg', 'png']:
         raise ValidationError('Solo se permiten imágenes en formato JPG y PNG.')
+    
+class Hashtag(models.Model):
+    texto = models.CharField(max_length=50, unique=True)
+    es_predeterminado = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"#{self.texto}"
+    
+# En una migración o en un fixture
+hashtags_predeterminados = [
+    "flora", "fauna", "enextincion", "invasora", 
+    "mamifero", "ave", "reptil", "anfibio", "insecto"
+]
 
 class Avistamiento(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -34,6 +47,7 @@ class Avistamiento(models.Model):
     publicado = models.BooleanField(default=False)
     tipo_especie = models.CharField(max_length=10, choices=TIPO_ESPECIE_CHOICES, default='fauna')
     estado_conservacion = models.CharField(max_length=15, choices=ESTADO_CONSERVACION_CHOICES, default='comun')
+    hashtags = models.ManyToManyField(Hashtag, blank=True)
 
     def __str__(self):
         return f"{self.nombre} ({'Publicado' if self.publicado else 'Pendiente'})"

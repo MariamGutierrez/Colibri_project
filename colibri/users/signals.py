@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from .biologo_config import configurar_permisos_biologo
 
 User = get_user_model()
 Animal = apps.get_model('users', 'Animal')  # Obtener el modelo dinámicamente
@@ -13,6 +14,9 @@ editor_group, _ = Group.objects.get_or_create(name='Editores')
 viewer_group, _ = Group.objects.get_or_create(name='Visitantes')
 ong_group, _ = Group.objects.get_or_create(name='ONGs')
 biologist_group, _ = Group.objects.get_or_create(name='Biologoa')
+
+configurar_permisos_biologo()
+
 # Definir permisos
 permissions = [
     ('add_animal', 'Puede agregar animales'),

@@ -46,6 +46,11 @@ def login_view(request):
             login(request, user)
             if user.is_staff or user.is_superuser:
                 return redirect("/admin/")
+            elif user.groups.filter(name='Biologoa').exists():
+                # Asegurar que usuarios Biologoa tengan acceso al admin
+                user.is_staff = True
+                user.save()
+                return redirect("/admin/")
             elif user.groups.filter(name='ONGs').exists():
                 return redirect("dashboard_ong")  # Nueva URL para dashboard de ONGs
             else:

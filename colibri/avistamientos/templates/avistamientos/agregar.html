@@ -165,7 +165,60 @@
                 <option value="comun">Común</option>
             </select>
 
-            
+            <!-- Nuevo campo para hashtags -->
+            <label for="id_hashtags">Hashtags:</label>
+            <input type="text" id="id_hashtags" name="hashtags" placeholder="Ej: #silvestre #raro #diurno (separados por espacio)">
+
+            <!-- Sección de hashtags predefinidos -->
+            <div class="hashtag-predeterminados">
+                <label>Hashtags predeterminados:</label>
+                <div class="hashtag-container">
+                    <span class="hashtag-pill" data-tag="flora">#flora</span>
+                    <span class="hashtag-pill" data-tag="fauna">#fauna</span>
+                    <span class="hashtag-pill" data-tag="enextincion">#enextincion</span>
+                    <span class="hashtag-pill" data-tag="invasora">#invasora</span>
+                    <span class="hashtag-pill" data-tag="mamifero">#mamifero</span>
+                    <span class="hashtag-pill" data-tag="ave">#ave</span>
+                    <span class="hashtag-pill" data-tag="reptil">#reptil</span>
+                    <span class="hashtag-pill" data-tag="anfibio">#anfibio</span>
+                    <span class="hashtag-pill" data-tag="insecto">#insecto</span>
+                </div>
+            </div>
+
+            <!-- Añadir estilos para los hashtags -->
+            <style>
+                .hashtag-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-top: 5px;
+                }
+                
+                .hashtag-pill {
+                    background-color: #4A6653;
+                    color: white;
+                    padding: 4px 10px;
+                    border-radius: 15px;
+                    font-size: 0.9em;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    user-select: none;
+                }
+                
+                .hashtag-pill:hover {
+                    background-color: #9BCF35;
+                    transform: scale(1.05);
+                }
+                
+                .hashtag-pill.selected {
+                    background-color: #9BCF35;
+                }
+
+                .hashtag-predeterminados {
+                    margin-bottom: 15px;
+                }
+            </style>
+
             <label for="id_fotos">Fotos:</label>
             <input type="file" name="imagenes" id="imagenes" multiple accept="image/png, image/jpeg" data-max-files="10">
             <div id="preview-container"></div>
@@ -242,6 +295,51 @@
                         errorElement.style.display = "block";
                     }
                 });
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    const hashtagInput = document.getElementById('id_hashtags');
+                    const hashtagPills = document.querySelectorAll('.hashtag-pill');
+                    
+                    // Función para añadir un hashtag al campo de texto
+                    function addHashtag(tagText) {
+                        tagText = tagText.startsWith('#') ? tagText.substring(1) : tagText;
+                        
+                        // Obtener hashtags actuales como array
+                        const currentHashtags = hashtagInput.value
+                            .split(' ')
+                            .filter(tag => tag.trim() !== '')
+                            .map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
+                        
+                        // Añadir nuevo tag si no existe ya
+                        if (!currentHashtags.includes(tagText)) {
+                            currentHashtags.push(tagText);
+                        }
+                        
+                        // Actualizar el campo de texto
+                        hashtagInput.value = currentHashtags.join(' ');
+                    }
+                    
+                    // Añadir evento click a cada pill
+                    hashtagPills.forEach(pill => {
+                        pill.addEventListener('click', function() {
+                            const tagText = this.dataset.tag;
+                            addHashtag(tagText);
+                            this.classList.toggle('selected');
+                        });
+                    });
+                    
+                    // Auto-formatear el campo de hashtags para eliminar # duplicados
+                    hashtagInput.addEventListener('blur', function() {
+                        const tags = this.value
+                            .split(' ')
+                            .filter(tag => tag.trim() !== '')
+                            .map(tag => tag.replace(/^#+/, ''))  // Eliminar # iniciales
+                            .join(' ');
+                            
+                        this.value = tags;
+                    });
+                });
+
                 </script>
              
             

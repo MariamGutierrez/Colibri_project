@@ -87,6 +87,58 @@
             border: none;
             font-size: 14px;
         }
+        .hashtag-badge {
+            display: inline-block;
+            background: #4A6653;
+            color: #D3E4CD;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .hashtag-badge:hover {
+            background: #9BCF35;
+            transform: scale(1.05);
+        }
+        
+        .hashtag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .hashtag-filter {
+            background: #4A6653;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .hashtag-filter.active {
+            background: #9BCF35;
+        }
+        
+        #hashtag-search {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            flex-grow: 1;
+            margin: 0;
+        }
+        
+        .hashtag-search-container {
+            display: flex;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +146,7 @@
         <h1>🌿 Lista de Avistamientos 🌿</h1>
         <div id="map"></div>
         <div class="filters">
-            <form method="GET" action="{% url 'listar_avistamientos' %}">
+            <form method="GET" action="{% url 'listar_avistamientos' %}" id="filtro-form">
                 <label for="tipo_especie">Tipo de Especie:</label>
                 <select id="tipo_especie" name="tipo_especie">
                     <option value="">Todos</option>
@@ -109,10 +161,27 @@
                     <option value="invasora" {% if estado_conservacion == "invasora" %}selected{% endif %}>Invasora</option>
                     <option value="comun" {% if estado_conservacion == "comun" %}selected{% endif %}>Común</option>
                 </select>
+
+                <!-- Campo oculto para hashtags seleccionados -->
+                <input type="hidden" name="hashtags" id="hashtags-selected" value="{{ hashtags_selected }}">
         
                 <button type="submit">Filtrar</button>
             </form>
-        </div>        
+        </div>  
+        
+        <!-- Nuevo filtro de hashtags -->
+        <div class="hashtag-search-container">
+            <input type="text" id="hashtag-search" placeholder="Buscar hashtags...">
+        </div>
+        
+        <!-- Contenedor de hashtags populares/predeterminados -->
+        <div class="hashtag-filter-container">
+            {% for hashtag in hashtags_populares %}
+                <button class="hashtag-filter {% if hashtag.texto in hashtags_selected_list %}active{% endif %}" 
+                        data-tag="{{ hashtag.texto }}">#{{ hashtag.texto }}</button>
+            {% endfor %}
+        </div>
+        
         <div>
             {% for avistamiento in avistamientos %}
             <div class="avistamiento">
@@ -125,6 +194,12 @@
                     <strong>{{ avistamiento.nombre }}</strong>
                     <p>{{ avistamiento.descripcion }}</p>
                     <small>📍 Ubicación: ({{ avistamiento.latitud }}, {{ avistamiento.longitud }})</small>
+                </div>
+                <!-- Mostrar hashtags del avistamiento -->
+                <div class="hashtag-container">
+                    {% for hashtag in avistamiento.hashtags.all %}
+                        <span class="hashtag-badge" data-tag="{{ hashtag.texto }}">#{{ hashtag.texto }}</span>
+                    {% endfor %}
                 </div>
             </div>
         {% empty %}
@@ -158,9 +233,79 @@
                             `);
                     }
                 });
-            } else {
-                console.error("Los datos de avistamientos no son un array válido", avistamientos);
             }
+
+             // Funcionalidad de filtrado por hashtags
+             const hashtagFilters = document.querySelectorAll('.hashtag-filter');
+             const hashtagBadges = document.querySelectorAll('.hashtag-badge');
+             const hashtagInput = document.getElementById('hashtags-selected');
+             const filtroForm = document.getElementById('filtro-form');
+             
+             // Función para actualizar el campo oculto con los hashtags seleccionados
+             function updateSelectedHashtags() {
+                 const selected = Array.from(document.querySelectorAll('.hashtag-filter.active'))
+                     .map(el => el.dataset.tag);
+                 hashtagInput.value = selected.join(',');
+             }
+
+            // Restaurar posición de desplazamiento si existe
+            if (sessionStorage.getItem('scrollPosition')) {
+                window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition')));
+                // Limpiar después de usar
+                sessionStorage.removeItem('scrollPosition');
+            }
+
+             
+            // Guardar posición de desplazamiento antes de enviar el formulario
+            filtroForm.addEventListener('submit', function() {
+                sessionStorage.setItem('scrollPosition', window.pageYOffset);
+            });
+
+            // Modificar el evento click de los botones de filtro para guardar posición
+            hashtagFilters.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.toggle('active');
+                    updateSelectedHashtags();
+                    // Guardar posición antes de submit
+                    sessionStorage.setItem('scrollPosition', window.pageYOffset);
+                    filtroForm.submit();
+                });
+            });
+        
+            // Modificar el evento click para los badges de hashtag
+            hashtagBadges.forEach(badge => {
+                badge.addEventListener('click', function() {
+                    const tag = this.dataset.tag;
+                    
+                    // Buscar y activar el filtro correspondiente si existe
+                    const filterBtn = document.querySelector(`.hashtag-filter[data-tag="${tag}"]`);
+                    if (filterBtn && !filterBtn.classList.contains('active')) {
+                        filterBtn.classList.add('active');
+                        updateSelectedHashtags();
+                        // Guardar posición antes de submit
+                        sessionStorage.setItem('scrollPosition', window.pageYOffset);
+                        filtroForm.submit();
+                    }
+                });
+            });
+             
+             // Funcionalidad de búsqueda de hashtags
+             const searchInput = document.getElementById('hashtag-search');
+             searchInput.addEventListener('input', function() {
+                 const searchText = this.value.toLowerCase();
+                 
+                 // Filtrar los botones de hashtags
+                 hashtagFilters.forEach(btn => {
+                     const tag = btn.dataset.tag.toLowerCase();
+                     if (tag.includes(searchText) || searchText === '') {
+                         btn.style.display = 'inline-block';
+                     } else {
+                         btn.style.display = 'none';
+                     }
+                 });
+             });
+
         });
     </script>    
 </body>
