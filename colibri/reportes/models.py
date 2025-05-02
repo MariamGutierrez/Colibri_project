@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import timedelta, date
 from django.utils.timezone import now
+from django.contrib.admin.models import LogEntry
+
 
 class TipoReporte(models.Model):
     nombre = models.CharField(max_length=255)
@@ -30,7 +32,7 @@ class Reporte(models.Model):
 
     def delete(self, *args, **kwargs):
         # Guarda un registro en EliminacionParcialReporte
-        EliminacionParcialReporte.objects.create(
+        EliminacionParcialAvistamiento.objects.create(
             titulo=self.titulo,
         )
         super().delete(*args, **kwargs)
