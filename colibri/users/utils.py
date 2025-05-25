@@ -20,6 +20,13 @@ class UserDAO:
             return User.objects.get(username=username)
         except User.DoesNotExist:
             return None
+    @staticmethod
+    def get_user_by_email(email):
+        """ Obtiene un usuario por su email """
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None
 
     @staticmethod
     def create_user(username, email, password):
@@ -35,3 +42,4 @@ class UserDAO:
             user.delete()
             return True
         return False
+    
