@@ -70,11 +70,36 @@
         <h2>Registro de Visitante</h2>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+
+            {% for field in form %}
+                {% if field.name != "acepta_terminos" %}
+                    <p>
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label><br>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span style="color: red;">{{ field.errors }}</span>
+                        {% endif %}
+                    </p>
+                {% endif %}
+            {% endfor %}
+
+            <p>
+                <label>
+                    {{ form.acepta_terminos }}
+                    He leído y acepto los <a href="{% url 'terminos' %}" target="_blank">Términos y Condiciones</a>
+                </label>
+                {% if form.acepta_terminos.errors %}
+                    <span style="color: red;">{{ form.acepta_terminos.errors }}</span>
+                {% endif %}
+            </p>
+
             <button type="submit">Registrarse</button>
         </form>
         <a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
     </div>
 </body>
 </html>
+
 

@@ -45,3 +45,6 @@ def login_view(request):
             messages.error(request, error_message or "Credenciales inválidas.")
     
     return render(request, "users/login.html")
+
+def terminos_y_condiciones(request):
+    return render(request, 'users/terminosycondiciones.html')

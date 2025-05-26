@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-_fg+d7r#bzczd9)jrm*z9-$s8^l-%z!f(=e74vobk5t19!wl4s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        'colibri-project-57a365e7ef03.herokuapp.com',
+        'localhost',
+        '127.0.0.1'
+]
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
@@ -58,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     "users.middlewares.AdminSessionMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'colibri.urls'
@@ -131,9 +136,12 @@ USE_TZ = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
