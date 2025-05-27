@@ -1,1 +1,1 @@
-web: gunicorn colibri.wsgi
+web: gunicorn --pythonpath colibri colibri.wsgi
